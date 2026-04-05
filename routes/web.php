@@ -13,6 +13,10 @@ Route::get('/admin/dashboard', function () {
     return Inertia::render('Admin/AdminDashboard', [
     ]);
 });
+Route::get('/employee/dashboard', function () {
+    return Inertia::render('Employee/EmployeeDashboard', [
+    ]);
+});
 
 
 require __DIR__.'/auth.php';
