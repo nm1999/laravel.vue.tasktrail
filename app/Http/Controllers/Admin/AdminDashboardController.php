@@ -30,4 +30,9 @@ class AdminDashboardController
     {
         return inertia('Admin/Employees/Index');
     }
+   
+    public function logout()
+    {
+        return inertia('Home');
+    }
 }

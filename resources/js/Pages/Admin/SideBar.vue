@@ -1,10 +1,12 @@
 <template>
-    <h2 class="text-xl font-semibold mb-6">Ojede Eric</h2>
-    <h6 class="text-sm">Admin Dashboard</h6>
+    <h2 class="text-xl font-semibold mb-6">
+        Ojede Eric
+        <p class="text-sm">(Admin)</p>
+    </h2>
 
     <input
         type="text"
-        placeholder="Search task..."
+        placeholder="Search ..."
         class="w-full mb-4 px-3 py-2 border rounded-lg"
     />
 
@@ -20,9 +22,7 @@
             class="block p-2 rounded hover:bg-gray-100"
             >Notifications</Link
         >
-        <Link
-            href="/admin/tasks"
-            class="block p-2 rounded hover:bg-gray-100"
+        <Link href="/admin/tasks" class="block p-2 rounded hover:bg-gray-100"
             >Tasks</Link
         >
         <Link
@@ -36,7 +36,9 @@
         <Link href="/admin/settings" class="block p-2 rounded hover:bg-gray-100"
             >Settings</Link
         >
-        <Link class="block p-2 rounded hover:bg-gray-100">Help</Link>
+        <Link href="/admin/logout" class="block p-2 rounded hover:bg-gray-100"
+            >Logout</Link
+        >
     </div>
 </template>
 <script setup>
