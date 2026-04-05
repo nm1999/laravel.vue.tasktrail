@@ -1,22 +1,18 @@
 <?php
-
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Employee\EmployeeDashboardController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', function () {
-    return Inertia::render('Home', [
-    ]);
+Route::get('/', [HomeController::class,'index']);
+Route::prefix('/admin')->group(function () {
+    Route::get('/dashboard', [AdminDashboardController::class,'index']);
 });
-Route::get('/admin/dashboard', function () {
-    return Inertia::render('Admin/AdminDashboard', [
-    ]);
+Route::prefix('/employee')->group(function () {
+    Route::get('/dashboard', [EmployeeDashboardController::class,'index']);
 });
-Route::get('/employee/dashboard', function () {
-    return Inertia::render('Employee/EmployeeDashboard', [
-    ]);
-});
-
 
 require __DIR__.'/auth.php';
