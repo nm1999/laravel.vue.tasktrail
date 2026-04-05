@@ -12,6 +12,7 @@ Route::prefix('/admin')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class,'index']);
     Route::get('/notifications', [AdminDashboardController::class,'notifications']);
     Route::get('/tasks', [AdminDashboardController::class,'tasks']);
+    Route::get('/settings', [AdminDashboardController::class,'settings']);
 });
 Route::prefix('/employee')->group(function () {
     Route::get('/dashboard', [EmployeeDashboardController::class,'index']);

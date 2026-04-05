@@ -20,4 +20,9 @@ class AdminDashboardController
     {
         return inertia('Admin/Task/Index');
     }
+    
+    public function settings()
+    {
+        return inertia('Admin/Settings/Index');
+    }
 }

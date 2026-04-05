@@ -26,23 +26,15 @@
             >Tasks</Link
         >
 
-        <p class="text-gray-500 text-sm mt-4">Records</p>
-        <Link class="block p-2 rounded hover:bg-gray-100">Analytics</Link>
-        <Link class="block p-2 rounded hover:bg-gray-100">Companies</Link>
-        <Link class="block p-2 rounded hover:bg-gray-100">Contacts</Link>
+
     </nav>
 
     <div class="mt-6">
-        <Link class="block p-2 rounded hover:bg-gray-100">Settings</Link>
+        <Link href="/admin/settings" class="block p-2 rounded hover:bg-gray-100">Settings</Link>
         <Link class="block p-2 rounded hover:bg-gray-100">Help</Link>
     </div>
 
-    <div class="mt-6 p-4 bg-purple-100 rounded-lg">
-        <p class="font-semibold">Pro Mode</p>
-        <button class="mt-2 w-full bg-purple-500 text-white py-2 rounded">
-            Upgrade
-        </button>
-    </div>
+   
 </template>
 <script setup>
 import { Link, usePage } from "@inertiajs/vue3";
