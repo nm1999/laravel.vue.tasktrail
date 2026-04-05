@@ -9,6 +9,10 @@ Route::get('/', function () {
     return Inertia::render('Home', [
     ]);
 });
+Route::get('/admin/dashboard', function () {
+    return Inertia::render('Admin/AdminDashboard', [
+    ]);
+});
 
 
 require __DIR__.'/auth.php';
