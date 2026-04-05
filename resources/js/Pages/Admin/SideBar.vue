@@ -22,19 +22,22 @@
         >
         <Link
             href="/admin/tasks"
-            class="block p-2 rounded bg-blue-100 text-blue-600"
+            class="block p-2 rounded hover:bg-gray-100"
             >Tasks</Link
         >
-
-
+        <Link
+            href="/admin/employees"
+            class="block p-2 rounded bg-blue-100 text-blue-600"
+            >Employees</Link
+        >
     </nav>
 
     <div class="mt-6">
-        <Link href="/admin/settings" class="block p-2 rounded hover:bg-gray-100">Settings</Link>
+        <Link href="/admin/settings" class="block p-2 rounded hover:bg-gray-100"
+            >Settings</Link
+        >
         <Link class="block p-2 rounded hover:bg-gray-100">Help</Link>
     </div>
-
-   
 </template>
 <script setup>
 import { Link, usePage } from "@inertiajs/vue3";

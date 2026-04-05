@@ -25,4 +25,9 @@ class AdminDashboardController
     {
         return inertia('Admin/Settings/Index');
     }
+
+    public function employees()
+    {
+        return inertia('Admin/Employees/Index');
+    }
 }

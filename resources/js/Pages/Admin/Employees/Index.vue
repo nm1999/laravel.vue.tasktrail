@@ -5,7 +5,7 @@
             <SideBar />
         </aside>
         <main class="flex-1 p-6 overflow-auto">
-            <h3>Notifications</h3>
+            <h3>Employees</h3>
         </main>
     </div>
 </template>
@@ -13,7 +13,7 @@
 <script>
 import SideBar from "../SideBar.vue";
 export default {
-    name: "Notifications",
+    name: "Employees",
     components: {
         SideBar,
     },
