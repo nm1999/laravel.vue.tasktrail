@@ -10,6 +10,8 @@ use Inertia\Inertia;
 Route::get('/', [HomeController::class,'index']);
 Route::prefix('/admin')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class,'index']);
+    Route::get('/notifications', [AdminDashboardController::class,'notifications']);
+    Route::get('/tasks', [AdminDashboardController::class,'tasks']);
 });
 Route::prefix('/employee')->group(function () {
     Route::get('/dashboard', [EmployeeDashboardController::class,'index']);

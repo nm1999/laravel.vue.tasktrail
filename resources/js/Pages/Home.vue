@@ -96,7 +96,7 @@ import { router } from "@inertiajs/vue3";
 
 function signIn() {
     // navigate to admin dashboard
-    // router.get("/admin/dashboard");
-    router.get("employee/dashboard");
+    router.get("/admin/dashboard");
+    // router.get("employee/dashboard");
 }
 </script>

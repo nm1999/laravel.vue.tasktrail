@@ -2,39 +2,7 @@
     <div class="flex h-screen bg-gray-100">
         <!-- Sidebar -->
         <aside class="w-64 bg-white shadow-md p-4">
-            <h2 class="text-xl font-semibold mb-6">Ojede Eric</h2>
-
-            <input
-                type="text"
-                placeholder="Search task..."
-                class="w-full mb-4 px-3 py-2 border rounded-lg"
-            />
-
-            <nav class="space-y-2">
-                <p class="text-gray-500 text-sm">Main Menu</p>
-                <a class="block p-2 rounded hover:bg-gray-100">Dashboard</a>
-                <a class="block p-2 rounded hover:bg-gray-100">Notifications</a>
-                <a class="block p-2 rounded bg-blue-100 text-blue-600">Tasks</a>
-
-                <p class="text-gray-500 text-sm mt-4">Records</p>
-                <a class="block p-2 rounded hover:bg-gray-100">Analytics</a>
-                <a class="block p-2 rounded hover:bg-gray-100">Companies</a>
-                <a class="block p-2 rounded hover:bg-gray-100">Contacts</a>
-            </nav>
-
-            <div class="mt-6">
-                <a class="block p-2 rounded hover:bg-gray-100">Settings</a>
-                <a class="block p-2 rounded hover:bg-gray-100">Help</a>
-            </div>
-
-            <div class="mt-6 p-4 bg-purple-100 rounded-lg">
-                <p class="font-semibold">Pro Mode</p>
-                <button
-                    class="mt-2 w-full bg-purple-500 text-white py-2 rounded"
-                >
-                    Upgrade
-                </button>
-            </div>
+            <SideBar />
         </aside>
 
         <!-- Main Content -->
@@ -106,10 +74,12 @@
 
 <script>
 import TaskCard from "../../Components/TaskCard.vue";
+import SideBar from "./SideBar.vue";
 export default {
     name: "AdminDashboard",
     components: {
         TaskCard,
+        SideBar
     },  
     props: {
         title: String,
