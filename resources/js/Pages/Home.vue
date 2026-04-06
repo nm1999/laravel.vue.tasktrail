@@ -1,20 +1,20 @@
 ﻿<template>
     <div
-        class="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 text-slate-100 flex items-center justify-center px-4 py-12"
+        class="min-h-screen bg-gray-100 text-gray-900 flex items-center justify-center px-4 py-12"
     >
         <div
-            class="w-full max-w-[400px] rounded-3xl border border-white/10 bg-slate-950/90 p-8 shadow-2xl shadow-slate-950/20 backdrop-blur-xl"
+            class="w-full max-w-[400px] rounded-3xl border border-gray-200 bg-white p-8 shadow-2xl shadow-gray-900/20 backdrop-blur-xl"
         >
             <div class="mb-8 text-center">
-                <p class="text-sm uppercase tracking-[0.32em] text-slate-500">
+                <p class="text-sm uppercase tracking-[0.32em] text-gray-600">
                     Welcome Back
                 </p>
                 <h1
-                    class="mt-4 text-3xl font-semibold tracking-tight text-white"
+                    class="mt-4 text-3xl font-semibold tracking-tight text-gray-900"
                 >
                     Sign in to your account
                 </h1>
-                <p class="mt-3 text-sm text-slate-400">
+                <p class="mt-3 text-sm text-gray-600">
                     Enter your credentials below to continue to TaskTrail.
                 </p>
             </div>
@@ -22,7 +22,7 @@
             <form class="space-y-6" autocomplete="off" @submit.prevent="signIn()">
                 <div>
                     <label
-                        class="mb-2 block text-sm font-medium text-slate-300"
+                        class="mb-2 block text-sm font-medium text-gray-700"
                         for="email"
                         >Email address</label
                     >
@@ -30,13 +30,13 @@
                         id="email"
                         type="email"
                         placeholder="you@example.com"
-                        class="w-full rounded-2xl border border-slate-700/90 bg-slate-900 px-4 py-3 text-sm text-white outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-500/20"
+                        class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                     />
                 </div>
 
                 <div>
                     <label
-                        class="mb-2 block text-sm font-medium text-slate-300"
+                        class="mb-2 block text-sm font-medium text-gray-700"
                         for="password"
                         >Password</label
                     >
@@ -44,23 +44,23 @@
                         id="password"
                         type="password"
                         placeholder=""
-                        class="w-full rounded-2xl border border-slate-700/90 bg-slate-900 px-4 py-3 text-sm text-white outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-500/20"
+                        class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                     />
                 </div>
 
                 <div
-                    class="flex items-center justify-between text-sm text-slate-400"
+                    class="flex items-center justify-between text-sm text-gray-600"
                 >
                     <label class="flex items-center gap-2">
                         <input
                             type="checkbox"
-                            class="h-4 w-4 rounded border-slate-600 bg-slate-900 text-sky-500 focus:ring-sky-500/60"
+                            class="h-4 w-4 rounded border-gray-300 bg-gray-50 text-blue-600 focus:ring-blue-500/60"
                         />
                         Remember me
                     </label>
                     <button
                         type="button"
-                        class="font-medium text-sky-400 hover:text-sky-300"
+                        class="font-medium text-blue-600 hover:text-blue-800"
                     >
                         Forgot password?
                     </button>
@@ -68,20 +68,20 @@
 
                 <button
                     type="submit"
-                    class="w-full rounded-2xl bg-gradient-to-r from-sky-500 to-cyan-400 px-4 py-3 text-sm font-semibold text-slate-950 shadow-xl shadow-cyan-500/10 transition hover:brightness-110"
+                    class="w-full rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-xl shadow-blue-600/10 transition hover:bg-blue-700"
                 >
                     Sign in
                 </button>
             </form>
 
             <div
-                class="mt-8 border-t border-slate-700/60 pt-6 text-center text-sm text-slate-500"
+                class="mt-8 border-t border-gray-300 pt-6 text-center text-sm text-gray-600"
             >
                 <p>
                     New to TaskTrail?
                     <button
                         type="button"
-                        class="font-medium text-white hover:text-sky-300"
+                        class="font-medium text-blue-600 hover:text-blue-800"
                     >
                         Create an account
                     </button>
