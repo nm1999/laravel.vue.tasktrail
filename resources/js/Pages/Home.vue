@@ -19,6 +19,12 @@
                 </p>
             </div>
 
+            <!-- Error Messages -->
+            <div v-if="errors.email || errors.password" class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p v-if="errors.email" class="text-sm text-red-600">{{ errors.email[0] }}</p>
+                <p v-if="errors.password" class="text-sm text-red-600">{{ errors.password[0] }}</p>
+            </div>
+
             <form class="space-y-6" autocomplete="off" @submit.prevent="signIn()">
                 <div>
                     <label
@@ -28,9 +34,11 @@
                     >
                     <input
                         id="email"
+                        v-model="form.email"
                         type="email"
                         placeholder="you@example.com"
                         class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                        required
                     />
                 </div>
 
@@ -42,9 +50,11 @@
                     >
                     <input
                         id="password"
+                        v-model="form.password"
                         type="password"
                         placeholder=""
                         class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                        required
                     />
                 </div>
 
@@ -53,6 +63,7 @@
                 >
                     <label class="flex items-center gap-2">
                         <input
+                            v-model="form.remember"
                             type="checkbox"
                             class="h-4 w-4 rounded border-gray-300 bg-gray-50 text-blue-600 focus:ring-blue-500/60"
                         />
@@ -68,9 +79,11 @@
 
                 <button
                     type="submit"
-                    class="w-full rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-xl shadow-blue-600/10 transition hover:bg-blue-700"
+                    :disabled="loading"
+                    class="w-full rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-xl shadow-blue-600/10 transition hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    Sign in
+                    <span v-if="loading">Signing in...</span>
+                    <span v-else>Sign in</span>
                 </button>
             </form>
 
@@ -92,11 +105,39 @@
 </template>
 
 <script setup>
+import { ref, reactive } from 'vue';
 import { router } from "@inertiajs/vue3";
 
-function signIn() {
-    // navigate to admin dashboard
-    router.get("/admin/dashboard");
-    // router.get("employee/dashboard");
+const form = reactive({
+    email: '',
+    password: '',
+    remember: false,
+});
+
+const loading = ref(false);
+const errors = ref({});
+
+async function signIn() {
+    loading.value = true;
+    errors.value = {};
+
+    // navigate to admmin index page
+    await router.get('/admin');
+
+
+    // try {
+    //     await router.post('/login', form, {
+    //         onError: (err) => {
+    //             errors.value = err;
+    //         },
+    //         onSuccess: () => {
+    //             // Redirect will be handled by the controller
+    //         }
+    //     });
+    // } catch (error) {
+    //     console.error('Login error:', error);
+    // } finally {
+    //     loading.value = false;
+    // }
 }
 </script>
