@@ -3,36 +3,64 @@
 namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
-class AdminDashboardController
+class AdminDashboardController extends Controller
 {
     public function index()
     {
-        return inertia('Admin/AdminDashboard');
+        $user = Auth::user();
+
+        // Get dashboard statistics
+        $stats = [
+            'total_tasks' => \App\Models\Task::count(),
+            'active_tasks' => \App\Models\Task::where('status', 'in_progress')->count(),
+            'total_employees' => \App\Models\User::whereHas('roles', function($query) {
+                $query->where('role', 'employee');
+            })->count(),
+            'completed_tasks' => \App\Models\Task::where('status', 'completed')->count(),
+        ];
+
+        return Inertia::render('Admin/AdminDashboard', [
+            'user' => $user,
+            'stats' => $stats,
+        ]);
     }
 
     public function notifications()
     {
-        return inertia('Admin/Notifications/Index');
+        $notifications = Auth::user()->notifications()
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        return Inertia::render('Admin/Notifications/Index', [
+            'notifications' => $notifications,
+        ]);
     }
 
     public function tasks()
     {
-        return inertia('Admin/Task/Index');
+        return redirect()->route('admin.tasks.index');
     }
-    
+
     public function settings()
     {
-        return inertia('Admin/Settings/Index');
+        return redirect()->route('admin.settings.index');
     }
 
     public function employees()
     {
-        return inertia('Admin/Employees/Index');
+        return redirect()->route('admin.employees.index');
     }
-   
-    public function logout()
+
+    public function logout(Request $request)
     {
-        return inertia('Home');
+        Auth::logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/');
     }
 }

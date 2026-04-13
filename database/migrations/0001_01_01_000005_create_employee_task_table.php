@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('task_id')->constrained()->cascadeOnDelete();
             $table->timestamp('assigned_at')->nullable();
-            $table->primary(['user_id', 'task_id']);
+            $table->unique(['user_id', 'task_id']); // Changed from primary key to unique constraint
             $table->timestamps();
         });
     }
