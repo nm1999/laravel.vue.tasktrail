@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
+use App\Models\UserRole;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -17,6 +19,46 @@ class AuthController extends Controller
     public function showLoginForm()
     {
         return Inertia::render('Home');
+    }
+
+    /**
+     * Show the registration form.
+     */
+    public function showRegisterForm()
+    {
+        return Inertia::render('Auth/SignUp');
+    }
+
+    /**
+     * Handle registration.
+     */
+    public function register(Request $request)
+    {
+        $request->validate([
+            'firstname'             => 'required|string|max:255',
+            'surname'               => 'required|string|max:255',
+            'email'                 => 'required|email|unique:users,email',
+            'department'            => 'nullable|string|max:255',
+            'password'              => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = User::create([
+            'firstname'  => $request->firstname,
+            'surname'    => $request->surname,
+            'email'      => $request->email,
+            'department' => $request->department,
+            'password'   => Hash::make($request->password),
+        ]);
+
+        UserRole::create([
+            'user_id' => $user->id,
+            'role'    => 'employee',
+        ]);
+
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        return redirect('/employee/dashboard');
     }
 
     /**

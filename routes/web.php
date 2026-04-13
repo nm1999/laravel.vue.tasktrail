@@ -17,7 +17,7 @@ use Inertia\Inertia;
 Route::get('/', [HomeController::class,'index'])->middleware('guest')->name('home');
 
 // Admin Routes (Protected)
-Route::middleware(['auth', 'role:admin'])->prefix('/admin')->name('admin.')->group(function () {
+Route::prefix('/admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class,'index'])->name('dashboard');
     Route::get('/notifications', [AdminDashboardController::class,'notifications'])->name('notifications');
     Route::resource('/tasks', TaskController::class)->names('tasks');

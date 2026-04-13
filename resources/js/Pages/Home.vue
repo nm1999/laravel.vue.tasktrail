@@ -92,12 +92,12 @@
             >
                 <p>
                     New to TaskTrail?
-                    <button
-                        type="button"
+                    <Link
+                        href="/register"
                         class="font-medium text-blue-600 hover:text-blue-800"
                     >
                         Create an account
-                    </button>
+                </Link>
                 </p>
             </div>
         </div>
@@ -106,7 +106,7 @@
 
 <script setup>
 import { ref, reactive } from 'vue';
-import { router } from "@inertiajs/vue3";
+import { router , Link } from "@inertiajs/vue3";
 
 const form = reactive({
     email: '',
@@ -122,7 +122,7 @@ async function signIn() {
     errors.value = {};
 
     // navigate to admmin index page
-    await router.get('/admin');
+    router.get('/admin/dashboard');
 
 
     // try {
