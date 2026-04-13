@@ -151,10 +151,10 @@
             >
                 <p>
                     Already have an account?
-                    <a
-                        href="/login"
+                    <Link
+                        href="/"
                         class="font-medium text-blue-600 hover:text-blue-800"
-                        >Sign in</a
+                        >Sign in</Link
                     >
                 </p>
             </div>
@@ -164,7 +164,7 @@
 
 <script setup>
 import { ref, reactive } from 'vue';
-import { router } from '@inertiajs/vue3';
+import { router , Link} from '@inertiajs/vue3';
 
 const form = reactive({
     firstname: '',
