@@ -8,7 +8,7 @@ use Inertia\Inertia;
 
 class EmployeeDashboardController extends Controller
 {
-    public function index()
+    public function dashboard()
     {
         $user = Auth::user();
 
@@ -28,9 +28,29 @@ class EmployeeDashboardController extends Controller
         ];
 
         return Inertia::render('Employee/EmployeeDashboard', [
+            'component' => 'HomePage',
             'user' => $user,
             'stats' => $stats,
             'recentTasks' => $assignedTasks,
         ]);
+    }
+
+    public function tasks()
+    {
+        return Inertia::render('Employee/EmployeeDashboard', [
+            'component' => 'TasksPage',
+        ]);
+    }
+
+    public function notifications()
+    {
+        return Inertia::render('Employee/EmployeeDashboard', [
+            'component' => 'NotificationsPage',
+        ]);
+    }
+
+    public function index()
+    {
+        return $this->dashboard();
     }
 }
