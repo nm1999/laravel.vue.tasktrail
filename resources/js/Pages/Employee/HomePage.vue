@@ -2,7 +2,7 @@
     <div class="space-y-6">
         <!-- Welcome Section -->
         <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-100">
-            <h1 class="text-2xl font-bold text-gray-900 mb-2">Welcome back, {{ page.props.auth.user.name }}!</h1>
+            <h1 class="text-2xl font-bold text-gray-900 mb-2">Welcome back, {{ page.props.auth.user.firstname }}!</h1>
             <p class="text-gray-700">You have a great day ahead. Let's stay productive!</p>
         </div>
 
@@ -77,10 +77,30 @@
 
 <script setup>
 import { usePage } from "@inertiajs/vue3";
+import { computed } from "vue";
+
+const props = defineProps({
+    user: {
+        type: Object,
+        default: null,
+    },
+    stats: {
+        type: Object,
+        default: () => ({
+            assigned_tasks: 0,
+            completed_tasks: 0,
+            pending_tasks: 0,
+        }),
+    },
+    recentTasks: {
+        type: Array,
+        default: () => [],
+    },
+});
 
 const page = usePage();
 
-const activeTasks = 5;
-const completedTasks = 8;
-const pendingTasks = 3;
+const activeTasks = computed(() => props.stats?.assigned_tasks || 0);
+const completedTasks = computed(() => props.stats?.completed_tasks || 0);
+const pendingTasks = computed(() => props.stats?.pending_tasks || 0);
 </script>

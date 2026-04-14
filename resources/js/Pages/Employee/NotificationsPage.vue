@@ -56,6 +56,21 @@
 <script setup>
 import { reactive } from "vue";
 
+defineProps({
+    user: {
+        type: Object,
+        default: null,
+    },
+    stats: {
+        type: Object,
+        default: null,
+    },
+    recentTasks: {
+        type: Array,
+        default: () => [],
+    },
+});
+
 const notifications = reactive([
     {
         id: 1,

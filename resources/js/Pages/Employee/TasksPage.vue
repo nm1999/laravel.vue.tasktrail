@@ -14,6 +14,21 @@
 import { reactive } from "vue";
 import KanbanColumn from "./kanbanColumn.vue";
 
+defineProps({
+    user: {
+        type: Object,
+        default: null,
+    },
+    stats: {
+        type: Object,
+        default: null,
+    },
+    recentTasks: {
+        type: Array,
+        default: () => [],
+    },
+});
+
 const columns = reactive({
     todo: [
         { id: 1, title: "Setup environment", progress: 40 },

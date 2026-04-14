@@ -69,14 +69,19 @@
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                         </svg>
-                        <span>Logout</span>
+                        <span>Logout</span>                        
                     </Link>
                 </div>
             </div>
 
             <!-- Main Content -->
             <div class="flex-1 p-6 overflow-auto">
-                <component :is="currentComponent" />
+                <component 
+                    :is="currentComponent" 
+                    :user="page.props.auth.user"
+                    :stats="page.props.stats"
+                    :recentTasks="page.props.recentTasks"
+                />
             </div>
         </div>
     </div>
