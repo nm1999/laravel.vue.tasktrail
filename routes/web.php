@@ -34,6 +34,8 @@ Route::prefix('/admin')->name('admin.')->group(function () {
 // Employee Routes (Protected)
 Route::middleware(['auth'])->prefix('/employee')->name('employee.')->group(function () {
     Route::get('/dashboard', [EmployeeDashboardController::class,'index'])->name('dashboard');
+    Route::get('/tasks', [EmployeeDashboardController::class,'tasks'])->name('tasks');
+    Route::get('/notifications', [EmployeeDashboardController::class,'notifications'])->name('notifications');
 });
 
 // Shared Authenticated Routes
