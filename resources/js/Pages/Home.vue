@@ -121,23 +121,24 @@ async function signIn() {
     loading.value = true;
     errors.value = {};
 
-    // navigate to admmin index page
-    router.get('/admin/dashboard');
-
-
-    // try {
-    //     await router.post('/login', form, {
-    //         onError: (err) => {
-    //             errors.value = err;
-    //         },
-    //         onSuccess: () => {
-    //             // Redirect will be handled by the controller
-    //         }
-    //     });
-    // } catch (error) {
-    //     console.error('Login error:', error);
-    // } finally {
-    //     loading.value = false;
-    // }
+    try {
+        await router.post('/login', form, {
+            onError: (err) => {
+                errors.value = err;
+            },
+            onSuccess: (res) => {
+                console.log(res);
+                if(res.props.auth.user.role === 'admin') {
+                    router.get('/admin/dashboard');
+                } else if(res.props.auth.user.role === 'employee') {
+                    router.get('/employee/dashboard');
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Login error:', error);
+    } finally {
+        loading.value = false;
+    }
 }
 </script>

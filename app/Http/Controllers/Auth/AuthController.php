@@ -89,6 +89,11 @@ class AuthController extends Controller
             } else {
                 return redirect()->intended('/employee/dashboard');
             }
+        }else{
+            return Inertia::render('Home', [
+                'errors' => [
+                    'email' => ['The provided credentials do not match our records.']],
+            ]);
         }
 
         // Authentication failed
