@@ -6,11 +6,11 @@
         </aside>
         <main class="flex-1 p-6 overflow-auto">
             <h3 class="text-2xl font-bold mb-6">Employees</h3>
-            
+
             <!-- Employee Form -->
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h2 class="text-xl font-semibold mb-6">Add New Employee</h2>
-                
+
                 <form @submit.prevent="handleSubmit" class="space-y-6">
                     <!-- Grid Layout for Form Fields -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -77,10 +77,22 @@
                             >
                                 <option value="">Select Department</option>
                                 <option value="hr">Human Resources</option>
-                                <option value="it">Information Technology</option>
+                                <option value="it">
+                                    Information Technology
+                                </option>
                                 <option value="sales">Sales</option>
                                 <option value="marketing">Marketing</option>
                                 <option value="finance">Finance</option>
+                            </select>
+                        </div>
+                        <div>
+                            <InputLabel value="User role" />
+                            <select
+                                v-model="form.role"
+                                class="w-full mt-2 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            >
+                                <option value="employee">Employee</option>
+                                <option value="admin">Admin</option>
                             </select>
                         </div>
 
@@ -134,10 +146,11 @@
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref } from "vue";
 import SideBar from "../SideBar.vue";
 import TextInput from "@/Components/TextInput.vue";
 import InputLabel from "@/Components/InputLabel.vue";
+import { router  } from "@inertiajs/vue3";
 
 export default {
     name: "Employees",
@@ -148,21 +161,27 @@ export default {
     },
     setup() {
         const form = ref({
-            firstName: '',
-            surname: '',
-            email: '',
-            dateOfBirth: '',
-            contact: '',
-            department: '',
-            password: '',
-            confirmPassword: '',
+            firstname: "",
+            surname: "",
+            email: "",
+            dateOfBirth: "",
+            contact: "",
+            department: "",
+            role: "",
+            password: "",
+            confirmPassword: "",
         });
 
-        const search = ref('');
+        const search = ref("");
 
-        const handleSubmit = () => {
-            console.log('Form submitted:', form.value);
-            // Add your form submission logic here
+        const handleSubmit = async () => {
+            console.log("Form submitted:", form.value);
+
+            await router.post("/register", form, {
+                onSuccess: (res) => {
+                    console.log(res);
+                },
+            });
         };
 
         return {

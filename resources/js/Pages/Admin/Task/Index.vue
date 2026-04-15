@@ -194,6 +194,9 @@ export default {
             { id: 'maria', name: 'Maria Garcia', initials: 'MG', role: 'Scrum Master' },
         ]);
 
+
+        
+
         // Filtered employees based on search
         const filteredEmployees = computed(() => {
             if (!searchQuery.value) {
