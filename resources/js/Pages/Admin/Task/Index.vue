@@ -6,11 +6,11 @@
         </aside>
         <main class="flex-1 p-6 overflow-auto">
             <h3 class="text-2xl font-bold mb-6">Tasks</h3>
-            
+
             <!-- Create Task Form -->
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h2 class="text-xl font-semibold mb-6">Create New Task</h2>
-                
+
                 <form @submit.prevent="handleSubmit" class="space-y-6">
                     <!-- Title -->
                     <div>
@@ -50,9 +50,21 @@
                                     placeholder="Search team members..."
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 pr-10"
                                 />
-                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                <div
+                                    class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none"
+                                >
+                                    <svg
+                                        class="w-4 h-4 text-gray-400"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                                        ></path>
                                     </svg>
                                 </div>
                             </div>
@@ -62,7 +74,10 @@
                                 v-show="showDropdown"
                                 class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto"
                             >
-                                <div v-if="filteredEmployees.length === 0" class="px-3 py-2 text-gray-500 text-sm">
+                                <div
+                                    v-if="filteredEmployees.length === 0"
+                                    class="px-3 py-2 text-gray-500 text-sm"
+                                >
                                     No team members found
                                 </div>
                                 <div
@@ -70,20 +85,41 @@
                                     :key="employee.id"
                                     @click="toggleEmployee(employee.id)"
                                     class="px-3 py-2 hover:bg-gray-100 cursor-pointer flex items-center justify-between"
-                                    :class="{ 'bg-blue-50': isSelected(employee.id) }"
+                                    :class="{
+                                        'bg-blue-50': isSelected(employee.id),
+                                    }"
                                 >
                                     <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-xs font-medium">
+                                        <div
+                                            class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-xs font-medium"
+                                        >
                                             {{ employee.initials }}
                                         </div>
                                         <div>
-                                            <div class="font-medium text-gray-900">{{ employee.name }}</div>
-                                            <div class="text-sm text-gray-500">{{ employee.role }}</div>
+                                            <div
+                                                class="font-medium text-gray-900"
+                                            >
+                                                {{ employee.name }}
+                                            </div>
+                                            <div class="text-sm text-gray-500">
+                                                {{ employee.role }}
+                                            </div>
                                         </div>
                                     </div>
-                                    <div v-if="isSelected(employee.id)" class="text-blue-600">
-                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                    <div
+                                        v-if="isSelected(employee.id)"
+                                        class="text-blue-600"
+                                    >
+                                        <svg
+                                            class="w-5 h-5"
+                                            fill="currentColor"
+                                            viewBox="0 0 20 20"
+                                        >
+                                            <path
+                                                fill-rule="evenodd"
+                                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                clip-rule="evenodd"
+                                            ></path>
                                         </svg>
                                     </div>
                                 </div>
@@ -91,7 +127,10 @@
 
                             <!-- Selected Count -->
                             <p class="text-xs text-gray-500 mt-2">
-                                {{ form.assignedTo.length }} team member{{ form.assignedTo.length !== 1 ? 's' : '' }} selected
+                                {{ form.assignedTo.length }} team member{{
+                                    form.assignedTo.length !== 1 ? "s" : ""
+                                }}
+                                selected
                             </p>
                         </div>
 
@@ -107,15 +146,22 @@
                     </div>
 
                     <!-- Selected Team Members Display -->
-                    <div v-if="form.assignedTo.length > 0" class="bg-blue-50 border border-blue-200 rounded-md p-4">
-                        <p class="text-sm font-medium text-blue-900 mb-3">Selected Team Members:</p>
+                    <div
+                        v-if="form.assignedTo.length > 0"
+                        class="bg-blue-50 border border-blue-200 rounded-md p-4"
+                    >
+                        <p class="text-sm font-medium text-blue-900 mb-3">
+                            Selected Team Members:
+                        </p>
                         <div class="flex flex-wrap gap-2">
                             <span
                                 v-for="employeeId in form.assignedTo"
                                 :key="employeeId"
                                 class="inline-flex items-center gap-2 bg-blue-200 text-blue-800 px-3 py-2 rounded-full text-sm"
                             >
-                                <div class="w-5 h-5 bg-blue-300 rounded-full flex items-center justify-center text-xs font-medium">
+                                <div
+                                    class="w-5 h-5 bg-blue-300 rounded-full flex items-center justify-center text-xs font-medium"
+                                >
                                     {{ getEmployeeById(employeeId).initials }}
                                 </div>
                                 {{ getEmployeeById(employeeId).name }}
@@ -123,8 +169,16 @@
                                     @click="removeEmployee(employeeId)"
                                     class="ml-1 hover:bg-blue-300 rounded-full p-0.5 transition-colors"
                                 >
-                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                    <svg
+                                        class="w-3 h-3"
+                                        fill="currentColor"
+                                        viewBox="0 0 20 20"
+                                    >
+                                        <path
+                                            fill-rule="evenodd"
+                                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                            clip-rule="evenodd"
+                                        ></path>
                                     </svg>
                                 </button>
                             </span>
@@ -154,7 +208,8 @@
 </template>
 
 <script>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from "vue";
+import { router } from "@inertiajs/vue3";
 import SideBar from "../SideBar.vue";
 import TextInput from "@/Components/TextInput.vue";
 import InputLabel from "@/Components/InputLabel.vue";
@@ -166,33 +221,50 @@ export default {
         TextInput,
         InputLabel,
     },
-    setup() {
+    props: {
+        employees: {
+            type: [Array, Object],
+            default: () => [],
+        },
+    },
+    setup(props) {
         const form = ref({
-            title: '',
-            description: '',
+            title: "",
+            description: "",
             assignedTo: [],
-            deadline: '',
-            
+            deadline: "",
+            status: "todo",
         });
 
         // Search and dropdown state
-        const searchQuery = ref('');
+        const searchQuery = ref("");
         const showDropdown = ref(false);
         const dropdownContainer = ref(null);
 
-        // Employee data
-        const employees = ref([
-            { id: 'john', name: 'John Doe', initials: 'JD', role: 'Frontend Developer' },
-            { id: 'jane', name: 'Jane Smith', initials: 'JS', role: 'Project Manager' },
-            { id: 'mike', name: 'Mike Johnson', initials: 'MJ', role: 'Backend Developer' },
-            { id: 'sarah', name: 'Sarah Williams', initials: 'SW', role: 'UI/UX Designer' },
-            { id: 'robert', name: 'Robert Brown', initials: 'RB', role: 'DevOps Engineer' },
-            { id: 'emily', name: 'Emily Davis', initials: 'ED', role: 'QA Tester' },
-            { id: 'alex', name: 'Alex Thompson', initials: 'AT', role: 'Full Stack Developer' },
-            { id: 'lisa', name: 'Lisa Chen', initials: 'LC', role: 'Product Designer' },
-            { id: 'david', name: 'David Wilson', initials: 'DW', role: 'Team Lead' },
-            { id: 'maria', name: 'Maria Garcia', initials: 'MG', role: 'Scrum Master' },
-        ]);
+        // Normalize employees coming from Laravel/Inertia
+        const employees = computed(() => {
+            const source = Array.isArray(props.employees)
+                ? props.employees
+                : props.employees?.data || [];
+
+            return source.map((employee) => {
+                const fullName = `${employee.firstname || ""} ${employee.lastname || ""}`.trim() || "Unknown";
+                const initials = fullName
+                    .split(" ")
+                    .filter(Boolean)
+                    .slice(0, 2)
+                    .map((part) => part[0])
+                    .join("")
+                    .toUpperCase();
+
+                return {
+                    id: employee.id,
+                    name: fullName,
+                    initials: initials || "??",
+                    role: employee.role || employee.email || "Team Member",
+                };
+            });
+        });
 
         // Filtered employees based on search
         const filteredEmployees = computed(() => {
@@ -200,9 +272,10 @@ export default {
                 return employees.value;
             }
             const query = searchQuery.value.toLowerCase();
-            return employees.value.filter(employee =>
-                employee.name.toLowerCase().includes(query) ||
-                employee.role.toLowerCase().includes(query)
+            return employees.value.filter(
+                (employee) =>
+                    employee.name.toLowerCase().includes(query) ||
+                    employee.role.toLowerCase().includes(query),
             );
         });
 
@@ -223,14 +296,22 @@ export default {
 
         // Handle click outside to close dropdown
         const handleClickOutside = (event) => {
-            if (dropdownContainer.value && !dropdownContainer.value.contains(event.target)) {
+            if (
+                dropdownContainer.value &&
+                !dropdownContainer.value.contains(event.target)
+            ) {
                 showDropdown.value = false;
             }
         };
 
         // Get employee by ID
         const getEmployeeById = (employeeId) => {
-            return employees.value.find(emp => emp.id === employeeId) || { name: 'Unknown', initials: '??' };
+            return (
+                employees.value.find((emp) => emp.id === employeeId) || {
+                    name: "Unknown",
+                    initials: "??",
+                }
+            );
         };
 
         // Remove employee from selection
@@ -243,26 +324,35 @@ export default {
 
         // Lifecycle hooks for click outside detection
         onMounted(() => {
-            document.addEventListener('click', handleClickOutside);
+            document.addEventListener("click", handleClickOutside);
         });
 
         onUnmounted(() => {
-            document.removeEventListener('click', handleClickOutside);
+            document.removeEventListener("click", handleClickOutside);
         });
 
         const handleSubmit = () => {
-            console.log('Task submitted:', form.value);
             // Add your form submission logic here
+            router.post("/admin/tasks", form.value, {
+                onSuccess: (res) => {
+                    console.log(res);
+                    // resetForm();
+                },
+                onError: (err) => {
+                    console.log(err);
+                },
+            });
         };
 
         const resetForm = () => {
             form.value = {
-                title: '',
-                description: '',
+                title: "",
+                description: "",
                 assignedTo: [],
-                deadline: '',
+                deadline: "",
+                status: "todo",
             };
-            searchQuery.value = '';
+            searchQuery.value = "";
         };
 
         return {

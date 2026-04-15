@@ -16,9 +16,11 @@ class TaskController extends Controller
     public function index()
     {
         $tasks = Task::with('creator', 'assignedEmployees')->paginate(15);
+        $employees = User::paginate(15);
 
         return Inertia::render('Admin/Task/Index', [
             'tasks' => $tasks,
+            'employees' => $employees,
         ]);
     }
 
@@ -47,7 +49,9 @@ class TaskController extends Controller
             'priority' => 'nullable|string|in:low,medium,high,urgent',
             'progress' => 'nullable|integer|min:0|max:100',
             'assignedTo' => 'nullable|array',
-            'assignedTo.*' => 'integer|exists:users,id',
+            'assignedTo.*' => 'nullable|integer|exists:users,id',
+
+            // 'assignedTo.*' => 'integer|exists:users,id',
         ]);
 
         $task = Task::create([

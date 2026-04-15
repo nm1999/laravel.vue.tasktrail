@@ -52,8 +52,15 @@ class AuthController extends Controller
 
         UserRole::create([
             'user_id' => $user->id,
-            'role'    => 'employee',
+            'role'    => "employee",
         ]);
+
+        // if(Auth::user()){
+        //     return response()->json([
+        //         'message'=> "User created",
+        //         'success'=> true
+        //     ]);
+        // }
 
         Auth::login($user);
         $request->session()->regenerate();
@@ -87,7 +94,7 @@ class AuthController extends Controller
             if ($role === 'admin') {
                 return redirect()->intended('/admin/dashboard');
             } else {
-                return redirect()->intended('/employee/dashboard');
+                return redirect()->intended('/admin/dashboard');
             }
         }else{
             return Inertia::render('Home', [
