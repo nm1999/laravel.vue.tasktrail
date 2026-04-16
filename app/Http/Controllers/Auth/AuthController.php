@@ -55,17 +55,13 @@ class AuthController extends Controller
             'role'    => "employee",
         ]);
 
-        // if(Auth::user()){
-        //     return response()->json([
-        //         'message'=> "User created",
-        //         'success'=> true
-        //     ]);
-        // }
-
-        Auth::login($user);
-        $request->session()->regenerate();
-
-        return redirect('/employee/dashboard');
+        if(Auth::user()){
+            return redirect('/admin/employees')->with('success',"User created");
+        }else{
+            Auth::login($user);
+            $request->session()->regenerate();
+            return redirect('/employee/dashboard');
+        }
     }
 
     /**

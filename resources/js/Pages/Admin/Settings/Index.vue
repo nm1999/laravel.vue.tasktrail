@@ -106,7 +106,7 @@
                         <div>
                             <InputLabel value="Full Name" />
                             <TextInput
-                                v-model="accountSettings.name"
+                                v-model="page.props.user.firstname"
                                 type="text"
                                 placeholder="Enter your full name"
                                 class="w-full mt-2 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
@@ -117,7 +117,7 @@
                         <div>
                             <InputLabel value="Email Address" />
                             <TextInput
-                                v-model="accountSettings.email"
+                                v-model="page.props.user.email"
                                 type="email"
                                 placeholder="Enter your email"
                                 class="w-full mt-2 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
@@ -351,7 +351,9 @@ import { ref, onMounted } from 'vue';
 import SideBar from "../SideBar.vue";
 import TextInput from "@/Components/TextInput.vue";
 import InputLabel from "@/Components/InputLabel.vue";
+import { usePage } from "@inertiajs/vue3";
 
+const page = usePage();
 export default {
     name: "Settings",
     components: {
@@ -460,6 +462,7 @@ export default {
             securitySettings,
             systemSettings,
             toggleDarkMode,
+            page
         };
     },
 };

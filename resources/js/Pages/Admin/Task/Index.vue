@@ -10,6 +10,7 @@
             <!-- Create Task Form -->
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h2 class="text-xl font-semibold mb-6">Create New Task</h2>
+                <p v-if="message" class="text-sm text-red-600">{{ message }}</p>
 
                 <form @submit.prevent="handleSubmit" class="space-y-6">
                     <!-- Title -->
@@ -195,9 +196,11 @@
                             Clear
                         </button>
                         <button
+                            :disabled="isLoading"
                             type="submit"
                             class="px-6 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors"
                         >
+                            <i v-if="isLoading" class="fa fa-spin"></i>
                             Create Task
                         </button>
                     </div>
@@ -208,8 +211,9 @@
 </template>
 
 <script>
-import { ref, computed, onMounted, onUnmounted } from "vue";
-import { router } from "@inertiajs/vue3";
+import { ref, computed, onMounted, onUnmounted, watch } from "vue";
+import { router, usePage } from "@inertiajs/vue3";
+import Swal from "sweetalert2";
 import SideBar from "../SideBar.vue";
 import TextInput from "@/Components/TextInput.vue";
 import InputLabel from "@/Components/InputLabel.vue";
@@ -228,6 +232,7 @@ export default {
         },
     },
     setup(props) {
+        const page = usePage();
         const form = ref({
             title: "",
             description: "",
@@ -240,6 +245,8 @@ export default {
         const searchQuery = ref("");
         const showDropdown = ref(false);
         const dropdownContainer = ref(null);
+        const message = ref(null);
+        const isLoading = ref(false);
 
         // Normalize employees coming from Laravel/Inertia
         const employees = computed(() => {
@@ -331,15 +338,44 @@ export default {
             document.removeEventListener("click", handleClickOutside);
         });
 
+        const showSuccessAlert = (successMessage) => {
+            if (!successMessage) {
+                return;
+            }
+
+            Swal.fire({
+                title: "Task created",
+                text: successMessage,
+                icon: "success",
+                confirmButtonText: "OK",
+            });
+        };
+
+        watch(
+            () => page.props.flash?.success,
+            (successMessage) => {
+                if (!successMessage) {
+                    return;
+                }
+
+                showSuccessAlert(successMessage);
+                resetForm();
+                isLoading.value = false;
+                message.value = null;
+            },
+            { immediate: true },
+        );
+
         const handleSubmit = () => {
-            // Add your form submission logic here
+            isLoading.value = true;
             router.post("/admin/tasks", form.value, {
-                onSuccess: (res) => {
-                    console.log(res);
-                    // resetForm();
+                onSuccess: () => {
+                    message.value = null;
+                    isLoading.value = false;
                 },
-                onError: (err) => {
-                    console.log(err);
+                onError: () => {
+                    message.value = "Unable to create task. Check the form and try again.";
+                    isLoading.value = false;
                 },
             });
         };
@@ -368,6 +404,8 @@ export default {
             removeEmployee,
             handleSubmit,
             resetForm,
+            message,
+            isLoading,
         };
     },
 };
