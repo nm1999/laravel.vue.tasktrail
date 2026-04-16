@@ -151,7 +151,7 @@ import SideBar from "../SideBar.vue";
 import TextInput from "@/Components/TextInput.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import { router } from "@inertiajs/vue3";
-
+import Swal from "sweetalert2";
 export default {
     name: "Employees",
     components: {
@@ -173,9 +173,19 @@ export default {
         const handleSubmit = async () => {
             console.log("Form submitted:", form.value);
 
-            await router.post("/register", form, {
+            await router.post("/register", form.value, {
                 onSuccess: (res) => {
                     console.log(res);
+                    console.log("successs");
+                    Swal.fire({
+                        title: "User created",
+                        text: "New employee created",
+                        icon: "success",
+                        confirmButtonText: "OK",
+                    });
+                },
+                onError: (err) => {
+                    console.log("Error here : " + err);
                 },
             });
         };
