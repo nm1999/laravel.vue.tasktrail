@@ -258,7 +258,6 @@ export default {
         SideBar,
     },
     setup() {
-        console.log(page.props);
         // Metrics data
         const metrics = ref({
             totalTasks: page.props.stats.total_tasks,
