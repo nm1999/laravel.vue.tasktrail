@@ -158,13 +158,13 @@
                     <div class="space-y-4">
                         <div v-for="employee in recentEmployees" :key="employee.id" class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                             <div class="w-10 h-10 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center">
-                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ employee.initials }}</span>
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">NM</span>
                             </div>
                             <div class="flex-1 min-w-0">
-                                <h4 class="font-medium text-gray-900 dark:text-white text-sm">{{ employee.name }}</h4>
-                                <p class="text-xs text-gray-600 dark:text-gray-400">{{ employee.role }}</p>
+                                <h4 class="font-medium text-gray-900 dark:text-white text-sm">{{ employee.firstname }} {{ employee.surname }}</h4>
+                                <p class="text-xs text-gray-600 dark:text-gray-400">Software developer</p>
                             </div>
-                            <div :class="['w-2 h-2 rounded-full', employee.status === 'active' ? 'bg-green-500' : 'bg-gray-400']"></div>
+                            <!-- <div :class="['w-2 h-2 rounded-full', employee.status === 'active' ? 'bg-green-500' : 'bg-gray-400']"></div> -->
                         </div>
                     </div>
                 </div>
@@ -249,6 +249,8 @@
 <script>
 import { ref } from 'vue';
 import SideBar from "./SideBar.vue";
+import { usePage } from "@inertiajs/vue3";
+const page = usePage();
 
 export default {
     name: "AdminDashboard",
@@ -256,12 +258,13 @@ export default {
         SideBar,
     },
     setup() {
+        console.log(page.props);
         // Metrics data
         const metrics = ref({
-            totalTasks: 147,
-            activeEmployees: 23,
-            completedTasks: 89,
-            overdueTasks: 5,
+            totalTasks: page.props.stats.total_tasks,
+            activeEmployees: page.props.stats.total_employees,
+            completedTasks: page.props.stats.completed_tasks,
+            overdueTasks: (page.props.stats.total_tasks - page.props.stats.completed_tasks),
         });
 
         // Task status distribution
@@ -305,36 +308,7 @@ export default {
         ]);
 
         // Recent employees
-        const recentEmployees = ref([
-            {
-                id: 1,
-                name: 'Alex Thompson',
-                role: 'Frontend Developer',
-                initials: 'AT',
-                status: 'active'
-            },
-            {
-                id: 2,
-                name: 'Lisa Chen',
-                role: 'UI/UX Designer',
-                initials: 'LC',
-                status: 'active'
-            },
-            {
-                id: 3,
-                name: 'Robert Kim',
-                role: 'Backend Developer',
-                initials: 'RK',
-                status: 'active'
-            },
-            {
-                id: 4,
-                name: 'Maria Garcia',
-                role: 'Project Manager',
-                initials: 'MG',
-                status: 'active'
-            },
-        ]);
+        const recentEmployees = ref([]);
 
         // Recent activities
         const recentActivities = ref([
@@ -390,6 +364,13 @@ export default {
             };
             return colors[status] || 'bg-gray-400';
         };
+
+        const getEmployees = ()=>{
+            recentEmployees.value = page.props.employee;
+        }
+
+        getEmployees();
+        
 
         return {
             metrics,

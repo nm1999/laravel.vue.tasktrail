@@ -11,6 +11,7 @@ class AdminDashboardController extends Controller
     public function index()
     {
         $user = Auth::user();
+        $employee =  \App\Models\User::all();
 
         // Get dashboard statistics
         $stats = [
@@ -25,6 +26,7 @@ class AdminDashboardController extends Controller
         return Inertia::render('Admin/AdminDashboard', [
             'user' => $user,
             'stats' => $stats,
+            'employee'=> $employee
         ]);
     }
 

@@ -150,7 +150,7 @@ import { ref } from "vue";
 import SideBar from "../SideBar.vue";
 import TextInput from "@/Components/TextInput.vue";
 import InputLabel from "@/Components/InputLabel.vue";
-import { router  } from "@inertiajs/vue3";
+import { router } from "@inertiajs/vue3";
 
 export default {
     name: "Employees",
@@ -164,12 +164,8 @@ export default {
             firstname: "",
             surname: "",
             email: "",
-            dateOfBirth: "",
-            contact: "",
             department: "",
-            role: "",
             password: "",
-            confirmPassword: "",
         });
 
         const search = ref("");
