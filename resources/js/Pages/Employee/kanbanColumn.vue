@@ -9,7 +9,7 @@
       @update:modelValue="updateValue"
       group="tasks"
       item-key="id"
-      class="space-y-4 min-h-[200px]"
+      class="space-y-4 min-h-[600px]"
     >
       <template #item="{ element }">
         <TaskCard :title="element.title" :progress="element.progress" />
