@@ -11,7 +11,7 @@
     </div>
 
     <div class="text-right text-xs mt-1 text-gray-500">
-      {{ progress }}%
+      {{ progress }} 65%
     </div>
   </div>
 </template>
