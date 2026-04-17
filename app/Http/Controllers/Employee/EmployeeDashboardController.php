@@ -39,11 +39,19 @@ class EmployeeDashboardController extends Controller
 
     public function tasks()
     {
+
+        $user = Auth::user();
+
+        // Get employee's assigned tasks
+        $assignedTasks = $user->assignedTasks()
+            ->with('creator')
+            ->orderBy('created_at', 'desc')
+            ->get();
         $stats = [
-            'todo'=> Task::where('status','todo')->get(),
-            'progress'=>Task::where('status','progress')->get(),
-            'review'=>Task::where('status','review')->get(),
-            'done'=>Task::where('status','done')->get(),
+            'todo'=> $user->assignedTasks()->where('status','todo')->get(),
+            'progress'=>$user->assignedTasks()->where('status','progress')->get(),
+            'review'=>$user->assignedTasks()->where('status','review')->get(),
+            'done'=>$user->assignedTasks()->where('status','done')->get(),
         ];
         return Inertia::render('Employee/EmployeeDashboard', [
             'component' => 'TasksPage',
