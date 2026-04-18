@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Employee;
 
 use App\Http\Controllers\Controller;
+use App\Models\TaskComment;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Task;
 
@@ -48,15 +50,60 @@ class EmployeeDashboardController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
         $stats = [
-            'todo'=> $user->assignedTasks()->where('status','todo')->get(),
-            'progress'=>$user->assignedTasks()->where('status','progress')->get(),
-            'review'=>$user->assignedTasks()->where('status','review')->get(),
-            'done'=>$user->assignedTasks()->where('status','done')->get(),
+            'todo'=> $user->assignedTasks()->where('status','todo')->withCount('comments')->get(),
+            'progress'=>$user->assignedTasks()->where('status','progress')->withCount('comments')->get(),
+            'review'=>$user->assignedTasks()->where('status','review')->withCount('comments')->get(),
+            'done'=>$user->assignedTasks()->where('status','done')->withCount('comments')->get(),
         ];
         return Inertia::render('Employee/EmployeeDashboard', [
             'component' => 'TasksPage',
             'stats'=> $stats
         ]);
+    }
+
+    public function showTask(Task $task)
+    {
+        $user = Auth::user();
+
+        abort_unless(
+            $task->created_by === $user->id || $task->assignedEmployees()->where('user_id', $user->id)->exists(),
+            403
+        );
+
+        $task->load([
+            'creator:id,firstname,surname,email',
+            'assignedEmployees:id,firstname,surname,email',
+            'comments' => function ($query) {
+                $query->with('author:id,firstname,surname')->latest();
+            },
+        ])->loadCount('comments');
+
+        return Inertia::render('Employee/EmployeeDashboard', [
+            'component' => 'TaskDetailsPage',
+            'task' => $task,
+        ]);
+    }
+
+    public function storeComment(Request $request, Task $task)
+    {
+        $user = Auth::user();
+
+        abort_unless(
+            $task->created_by === $user->id || $task->assignedEmployees()->where('user_id', $user->id)->exists(),
+            403
+        );
+
+        $validated = $request->validate([
+            'body' => 'required|string|max:2000',
+        ]);
+
+        TaskComment::create([
+            'task_id' => $task->id,
+            'user_id' => $user->id,
+            'body' => $validated['body'],
+        ]);
+
+        return redirect()->route('employee.tasks.show', $task)->with('success', 'Comment posted.');
     }
 
     public function notifications()

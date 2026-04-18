@@ -2,7 +2,7 @@
 <template>
     <div>
         <div class="grid grid-cols-4 gap-6">
-            <KanbanColumn title="To Do" v-model="stats.todo" />
+            <KanbanColumn @modelValue="updateTodo()" title="To Do" v-model="stats.todo" />
             <KanbanColumn title="In Progress" v-model="stats.progress" />
             <KanbanColumn title="In Review" v-model="stats.review" />
             <KanbanColumn title="Done" v-model="stats.done" />
@@ -42,5 +42,11 @@ export default {
             columns,
         };
     },
+    methods:{
+        updateTodo(e){
+            console.log("changed items")
+            console.log(e)
+        }   
+    }
 };
 </script>
