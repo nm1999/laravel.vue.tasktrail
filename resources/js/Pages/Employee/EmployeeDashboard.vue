@@ -71,6 +71,7 @@
                     :user="page.props.auth.user"
                     :stats="page.props.stats"
                     :recentTasks="page.props.recentTasks"
+                    :task="page.props.task"
                 />
             </div>
         </div>
@@ -83,6 +84,7 @@ import { computed } from "vue";
 import HomePage from "./HomePage.vue";
 import TasksPage from "./TasksPage.vue";
 import NotificationsPage from "./NotificationsPage.vue";
+import TaskDetailsPage from "./TaskDetailsPage.vue";
 
 const page = usePage();
 
@@ -90,10 +92,14 @@ const components = {
     HomePage,
     TasksPage,
     NotificationsPage,
+    TaskDetailsPage,
 };
 
 const currentComponent = computed(() => {
     const url = page.url;
+    if (url.startsWith('/employee/tasks/')) {
+        return components.TaskDetailsPage;
+    }
     if (url === '/employee/tasks' || url.startsWith('/employee/tasks?')) {
         return components.TasksPage;
     }
@@ -108,6 +114,7 @@ const isCurrent = (path) => page.url === path || page.url.startsWith(path + '?')
 const getPageTitle = () => {
     const url = page.url;
     if (url === '/employee/dashboard' || url.startsWith('/employee/dashboard?')) return 'Home';
+    if (url.startsWith('/employee/tasks/')) return 'Task Details';
     if (url === '/employee/tasks' || url.startsWith('/employee/tasks?')) return 'My Tasks';
     if (url === '/employee/notifications' || url.startsWith('/employee/notifications?')) return 'Notifications';
     return 'Dashboard';

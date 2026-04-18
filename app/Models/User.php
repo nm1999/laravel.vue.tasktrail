@@ -86,6 +86,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get task comments authored by this user.
+     */
+    public function taskComments(): HasMany
+    {
+        return $this->hasMany(TaskComment::class);
+    }
+
+    /**
      * Get the roles for this user.
      */
     public function roles(): HasMany

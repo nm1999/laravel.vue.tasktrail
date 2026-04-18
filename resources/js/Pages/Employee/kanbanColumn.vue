@@ -9,10 +9,10 @@
       @update:modelValue="updateValue"
       group="tasks"
       item-key="id"
-      class="space-y-4 min-h-[600px]"
+      class="space-y-4 min-h-[1000px]"
     >
       <template #item="{ element }">
-        <TaskCard :title="element.title" :progress="element.progress" />
+        <TaskCard :task="element" />
       </template>
     </draggable>
   </div>

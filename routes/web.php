@@ -40,6 +40,8 @@ Route::prefix('/admin')->name('admin.')->group(function () {
 Route::middleware(['auth'])->prefix('/employee')->name('employee.')->group(function () {
     Route::get('/dashboard', [EmployeeDashboardController::class,'index'])->name('dashboard');
     Route::get('/tasks', [EmployeeDashboardController::class,'tasks'])->name('tasks');
+    Route::get('/tasks/{task}', [EmployeeDashboardController::class, 'showTask'])->name('tasks.show');
+    Route::post('/tasks/{task}/comments', [EmployeeDashboardController::class, 'storeComment'])->name('tasks.comments.store');
     Route::get('/notifications', [EmployeeDashboardController::class,'notifications'])->name('notifications');
 });
 
