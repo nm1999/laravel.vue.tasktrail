@@ -16,8 +16,12 @@ use Inertia\Inertia;
 // Public Routes
 Route::get('/', [HomeController::class,'index'])->middleware('guest')->name('home');
 
-Route::prefix('/api/v1')->group(function () {
-   
+Route::prefix('/api/v1')->middleware('auth')->group(function () {
+    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('api.notifications.unread-count');
+    Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('api.notifications.read');
+    Route::patch('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('api.notifications.mark-all-read');
+    Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy'])->name('api.notifications.destroy');
+    Route::delete('/notifications', [NotificationController::class, 'destroyAll'])->name('api.notifications.destroy-all');
 });
 
 
@@ -42,6 +46,7 @@ Route::middleware(['auth'])->prefix('/employee')->name('employee.')->group(funct
     Route::get('/tasks', [EmployeeDashboardController::class,'tasks'])->name('tasks');
     Route::get('/tasks/{task}', [EmployeeDashboardController::class, 'showTask'])->name('tasks.show');
     Route::post('/tasks/{task}/comments', [EmployeeDashboardController::class, 'storeComment'])->name('tasks.comments.store');
+    Route::patch('/tasks/{task}/status', [EmployeeDashboardController::class, 'updateTaskStatus'])->name('tasks.status');
     Route::get('/notifications', [EmployeeDashboardController::class,'notifications'])->name('notifications');
 });
 

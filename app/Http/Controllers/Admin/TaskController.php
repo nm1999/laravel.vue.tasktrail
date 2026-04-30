@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Events\TaskAssigned;
+use App\Events\TaskCreated;
 use App\Http\Controllers\Controller;
+use App\Models\Notification;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -69,6 +72,24 @@ class TaskController extends Controller
             $task->assignedEmployees()->sync($validated['assignedTo']);
         }
 
+        $task->load('assignedEmployees');
+        $creator = auth()->user();
+
+        // Persist notifications and broadcast to each assigned employee
+        foreach ($task->assignedEmployees as $employee) {
+            Notification::create([
+                'user_id' => $employee->id,
+                'type' => 'task_created',
+                'title' => 'New Task Assigned',
+                'message' => "You have been assigned a new task: \"{$task->title}\"",
+                'link' => "/employee/tasks/{$task->id}",
+            ]);
+        }
+
+        if ($task->assignedEmployees->isNotEmpty()) {
+            broadcast(new TaskCreated($task, $creator))->toOthers();
+        }
+
         return redirect()->back()->with('success', 'Task created successfully!');
     }
 
@@ -123,11 +144,34 @@ class TaskController extends Controller
             'progress' => $validated['progress'] ?? 0,
         ]);
 
+        // Determine newly assigned employees before syncing
+        $previousEmployeeIds = $task->assignedEmployees()->pluck('users.id')->toArray();
+
         // Sync employees
         if (!empty($validated['assignedTo'])) {
             $task->assignedEmployees()->sync($validated['assignedTo']);
         } else {
             $task->assignedEmployees()->detach();
+        }
+
+        $newEmployeeIds = array_values(array_diff(
+            $validated['assignedTo'] ?? [],
+            $previousEmployeeIds
+        ));
+
+        // Persist notifications and broadcast to newly assigned employees
+        foreach ($newEmployeeIds as $employeeId) {
+            Notification::create([
+                'user_id' => $employeeId,
+                'type' => 'task_assigned',
+                'title' => 'Task Assigned to You',
+                'message' => "You have been assigned to the task: \"{$task->title}\"",
+                'link' => "/employee/tasks/{$task->id}",
+            ]);
+        }
+
+        if (!empty($newEmployeeIds)) {
+            broadcast(new TaskAssigned($task, $newEmployeeIds))->toOthers();
         }
 
         return redirect()->back()->with('success', 'Task updated successfully!');
