@@ -150,8 +150,11 @@ const dismissToast = (id) => {
 const pushToast = (title, message) => {
     const id = `bell-toast-${++toastCounter}`;
     toastQueue.value.unshift({ id, title, message });
-    setTimeout(() => dismissToast(id), 6000);
+    setTimeout(() => dismissToast(id), TOAST_DURATION_MS);
 };
+
+const TOAST_DURATION_MS = 6000;
+const MAX_RECENT_NOTIFICATIONS = 5;
 
 const { notifications, unreadCount, markAllAsRead, fetchUnreadCount } = useNotifications({
     onTaskCreated: (event) => {
@@ -168,7 +171,7 @@ const { notifications, unreadCount, markAllAsRead, fetchUnreadCount } = useNotif
 // Seed from server-side prop
 unreadCount.value = props.initialUnreadCount;
 
-const recentNotifications = computed(() => notifications.value.slice(0, 5));
+const recentNotifications = computed(() => notifications.value.slice(0, MAX_RECENT_NOTIFICATIONS));
 
 const toggleDropdown = () => {
     isOpen.value = !isOpen.value;

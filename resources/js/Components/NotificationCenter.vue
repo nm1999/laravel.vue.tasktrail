@@ -143,8 +143,10 @@ const dismissToast = (id) => {
 const pushToast = (title, message) => {
     const id = `nc-toast-${++toastCounter}`;
     toastQueue.value.unshift({ id, title, message });
-    setTimeout(() => dismissToast(id), 8000);
+    setTimeout(() => dismissToast(id), TOAST_DURATION_MS);
 };
+
+const TOAST_DURATION_MS = 8000;
 
 const {
     notifications: realtimeNotifications,
