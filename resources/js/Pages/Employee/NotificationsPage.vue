@@ -104,7 +104,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed } from "vue";
 import { useNotifications } from "@/composables/useNotifications.js";
 
 const props = defineProps({
@@ -123,8 +123,29 @@ const serverNotifications = ref(props.notifications.map((n) => ({ ...n })));
 
 // Toast queue for real-time notifications (temporary banners)
 const toastQueue = ref([]);
+let toastCounter = 0;
 
-const { notifications: realtimeNotifications, unreadCount, markAsRead, markAllAsRead, dismissNotification } = useNotifications();
+const dismissToast = (id) => {
+    toastQueue.value = toastQueue.value.filter((t) => t.id !== id);
+};
+
+const pushToast = (title, message) => {
+    const id = `toast-${++toastCounter}`;
+    toastQueue.value.unshift({ id, title, message });
+    setTimeout(() => dismissToast(id), 8000);
+};
+
+const { notifications: realtimeNotifications, unreadCount, markAsRead, markAllAsRead, dismissNotification } = useNotifications({
+    onTaskCreated: (event) => {
+        pushToast('New Task Assigned', `You have been assigned a new task: "${event.task.title}"`);
+    },
+    onTaskAssigned: (event) => {
+        pushToast('Task Assigned to You', `You have been assigned to the task: "${event.task.title}"`);
+    },
+    onTaskStatusChanged: (event) => {
+        pushToast('Task Progress Updated', `"${event.task.title}" was updated to ${event.new_status}`);
+    },
+});
 
 // Initialize unread count from server-side data
 unreadCount.value = props.unreadCount;
@@ -151,45 +172,6 @@ const handleDismiss = async (id) => {
     await dismissNotification(id);
     serverNotifications.value = serverNotifications.value.filter((n) => n.id !== id);
 };
-
-const dismissToast = (id) => {
-    toastQueue.value = toastQueue.value.filter((t) => t.id !== id);
-};
-
-// When a real-time notification arrives, also push to toasts
-onMounted(() => {
-    const originalAdd = realtimeNotifications.value;
-    // Watch for new items pushed into realtimeNotifications
-    const { notifications: rt } = useNotifications({
-        onTaskCreated: (event) => {
-            const toast = {
-                id: `toast-created-${Date.now()}`,
-                title: 'New Task Assigned',
-                message: `You have been assigned a new task: "${event.task.title}"`,
-            };
-            toastQueue.value.unshift(toast);
-            setTimeout(() => dismissToast(toast.id), 8000);
-        },
-        onTaskAssigned: (event) => {
-            const toast = {
-                id: `toast-assigned-${Date.now()}`,
-                title: 'Task Assigned to You',
-                message: `You have been assigned to the task: "${event.task.title}"`,
-            };
-            toastQueue.value.unshift(toast);
-            setTimeout(() => dismissToast(toast.id), 8000);
-        },
-        onTaskStatusChanged: (event) => {
-            const toast = {
-                id: `toast-status-${Date.now()}`,
-                title: 'Task Progress Updated',
-                message: `"${event.task.title}" was updated to ${event.new_status}`,
-            };
-            toastQueue.value.unshift(toast);
-            setTimeout(() => dismissToast(toast.id), 8000);
-        },
-    });
-});
 
 const formatDate = (value) => {
     if (!value) return '';

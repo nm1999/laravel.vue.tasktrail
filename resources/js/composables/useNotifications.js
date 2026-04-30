@@ -14,6 +14,8 @@ export function useNotifications({ onTaskCreated, onTaskAssigned, onTaskStatusCh
     const notifications = ref([]);
     const unreadCount = ref(0);
 
+    let notificationCounter = 0;
+
     const fetchUnreadCount = async () => {
         try {
             const response = await window.axios.get('/api/v1/notifications/unread-count');
@@ -82,7 +84,7 @@ export function useNotifications({ onTaskCreated, onTaskAssigned, onTaskStatusCh
 
         channel.listen('.task.created', (event) => {
             const notification = {
-                id: Date.now(),
+                id: `rt-${++notificationCounter}`,
                 type: 'task_created',
                 title: 'New Task Assigned',
                 message: `You have been assigned a new task: "${event.task.title}"`,
@@ -97,7 +99,7 @@ export function useNotifications({ onTaskCreated, onTaskAssigned, onTaskStatusCh
 
         channel.listen('.task.assigned', (event) => {
             const notification = {
-                id: Date.now(),
+                id: `rt-${++notificationCounter}`,
                 type: 'task_assigned',
                 title: 'Task Assigned to You',
                 message: `You have been assigned to the task: "${event.task.title}"`,
@@ -112,7 +114,7 @@ export function useNotifications({ onTaskCreated, onTaskAssigned, onTaskStatusCh
 
         channel.listen('.task.status_changed', (event) => {
             const notification = {
-                id: Date.now(),
+                id: `rt-${++notificationCounter}`,
                 type: 'task_status_changed',
                 title: 'Task Progress Updated',
                 message: `${event.updated_by.name} updated "${event.task.title}" to ${event.new_status}`,

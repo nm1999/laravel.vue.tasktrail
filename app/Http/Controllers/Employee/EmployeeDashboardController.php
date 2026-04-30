@@ -144,6 +144,9 @@ class EmployeeDashboardController extends Controller
             403
         );
 
+        // Accept both admin-side ('todo','in_progress','completed') and
+        // kanban-side ('todo','progress','review','done') status values
+        // to maintain compatibility with the existing dual naming convention.
         $validated = $request->validate([
             'status' => 'required|string|in:todo,in_progress,review,completed,progress,done',
             'progress' => 'nullable|integer|min:0|max:100',
