@@ -30,6 +30,10 @@ class NotificationController extends Controller
         $this->authorize('view', $notification);
         $notification->markAsRead();
 
+        if (request()->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
+
         return back()->with('success', 'Notification marked as read.');
     }
 
@@ -41,6 +45,10 @@ class NotificationController extends Controller
         $this->authorize('view', $notification);
         $notification->markAsUnread();
 
+        if (request()->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
+
         return back()->with('success', 'Notification marked as unread.');
     }
 
@@ -50,6 +58,10 @@ class NotificationController extends Controller
     public function markAllAsRead()
     {
         auth()->user()->notifications()->update(['is_read' => true]);
+
+        if (request()->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
 
         return back()->with('success', 'All notifications marked as read.');
     }
@@ -62,6 +74,10 @@ class NotificationController extends Controller
         $this->authorize('delete', $notification);
         $notification->delete();
 
+        if (request()->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
+
         return back()->with('success', 'Notification deleted successfully.');
     }
 
@@ -71,6 +87,10 @@ class NotificationController extends Controller
     public function destroyAll()
     {
         auth()->user()->notifications()->delete();
+
+        if (request()->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
 
         return back()->with('success', 'All notifications deleted successfully.');
     }

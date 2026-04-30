@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Employee;
 
+use App\Events\TaskStatusChanged;
 use App\Http\Controllers\Controller;
+use App\Models\Notification;
 use App\Models\TaskComment;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -31,11 +33,14 @@ class EmployeeDashboardController extends Controller
             'pending_tasks' => $user->assignedTasks()->where('status', 'todo')->count(),
         ];
 
+        $unreadCount = $user->notifications()->where('is_read', false)->count();
+
         return Inertia::render('Employee/EmployeeDashboard', [
             'component' => 'HomePage',
             'user' => $user,
             'stats' => $stats,
             'recentTasks' => $assignedTasks,
+            'unreadCount' => $unreadCount,
         ]);
     }
 
@@ -55,9 +60,13 @@ class EmployeeDashboardController extends Controller
             'review'=>$user->assignedTasks()->where('status','review')->withCount('comments')->get(),
             'done'=>$user->assignedTasks()->where('status','done')->withCount('comments')->get(),
         ];
+
+        $unreadCount = $user->notifications()->where('is_read', false)->count();
+
         return Inertia::render('Employee/EmployeeDashboard', [
             'component' => 'TasksPage',
-            'stats'=> $stats
+            'stats'=> $stats,
+            'unreadCount' => $unreadCount,
         ]);
     }
 
@@ -108,9 +117,69 @@ class EmployeeDashboardController extends Controller
 
     public function notifications()
     {
+        $user = Auth::user();
+
+        $notifications = $user->notifications()
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $unreadCount = $notifications->where('is_read', false)->count();
+
         return Inertia::render('Employee/EmployeeDashboard', [
             'component' => 'NotificationsPage',
+            'notifications' => $notifications,
+            'unreadCount' => $unreadCount,
         ]);
+    }
+
+    /**
+     * Update a task's status and broadcast the change.
+     */
+    public function updateTaskStatus(Request $request, Task $task)
+    {
+        $user = Auth::user();
+
+        abort_unless(
+            $task->created_by === $user->id || $task->assignedEmployees()->where('user_id', $user->id)->exists(),
+            403
+        );
+
+        $validated = $request->validate([
+            'status' => 'required|string|in:todo,in_progress,review,completed,progress,done',
+            'progress' => 'nullable|integer|min:0|max:100',
+        ]);
+
+        $oldStatus = $task->status;
+        $task->update([
+            'status' => $validated['status'],
+            'progress' => $validated['progress'] ?? $task->progress,
+        ]);
+
+        $task->load('assignedEmployees');
+
+        // Persist notifications for affected users (creator + other assigned employees)
+        $notifyUserIds = collect([$task->created_by]);
+        foreach ($task->assignedEmployees as $employee) {
+            if ($employee->id !== $user->id) {
+                $notifyUserIds->push($employee->id);
+            }
+        }
+
+        foreach ($notifyUserIds->unique() as $userId) {
+            if ($userId !== $user->id) {
+                Notification::create([
+                    'user_id' => $userId,
+                    'type' => 'task_status_changed',
+                    'title' => 'Task Progress Updated',
+                    'message' => "{$user->full_name} updated \"{$task->title}\" status to {$validated['status']}",
+                    'link' => "/employee/tasks/{$task->id}",
+                ]);
+            }
+        }
+
+        broadcast(new TaskStatusChanged($task, $user, $oldStatus, $validated['status']))->toOthers();
+
+        return response()->json(['success' => true, 'task' => $task]);
     }
 
     public function index()
