@@ -73,4 +73,4 @@ jobs:
             **/node_modules/**
             **/tests/**
             **/.env
-            **/vendor/
+            **/vendor/**
