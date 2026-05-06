@@ -4,6 +4,11 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
+        <meta name="reverb-key" content="{{ config('reverb.apps.apps.0.key') }}">
+        <meta name="reverb-host" content="{{ config('reverb.apps.apps.0.options.host') }}">
+        <meta name="reverb-port" content="{{ config('reverb.apps.apps.0.options.port') }}">
+        <meta name="reverb-scheme" content="{{ config('reverb.apps.apps.0.options.scheme') }}">
+
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
         <!-- Fonts -->
