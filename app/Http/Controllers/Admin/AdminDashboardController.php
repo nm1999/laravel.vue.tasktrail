@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
+use App\Models\Task;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -11,22 +13,27 @@ class AdminDashboardController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $employee =  \App\Models\User::all();
+        $employee = User::all();
+        $recentTasks = Task::with('assignedEmployees:id,firstname,surname')
+            ->latest()
+            ->take(8)
+            ->get(['id', 'title', 'status', 'deadline']);
 
         // Get dashboard statistics
         $stats = [
-            'total_tasks' => \App\Models\Task::count(),
-            'active_tasks' => \App\Models\Task::where('status', 'in_progress')->count(),
-            'total_employees' => \App\Models\User::whereHas('roles', function($query) {
+            'total_tasks' => Task::count(),
+            'active_tasks' => Task::where('status', 'in_progress')->count(),
+            'total_employees' => User::whereHas('roles', function($query) {
                 $query->where('role', 'employee');
             })->count(),
-            'completed_tasks' => \App\Models\Task::where('status', 'completed')->count(),
+            'completed_tasks' => Task::where('status', 'completed')->count(),
         ];
 
         return Inertia::render('Admin/AdminDashboard', [
             'user' => $user,
             'stats' => $stats,
-            'employee'=> $employee
+            'employee'=> $employee,
+            'recentTasks' => $recentTasks,
         ]);
     }
 

@@ -50,17 +50,46 @@
                 <span class="text-sm font-medium">Dashboard</span>
             </Link>
 
-            <!-- Tasks -->
-            <Link
-                href="/admin/tasks"
-                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
-                :class="route().current('*tasks*') ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-medium' : ''"
-            >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
-                </svg>
-                <span class="text-sm font-medium">Tasks</span>
-            </Link>
+            <!-- Tasks Dropdown -->
+            <div>
+                <button
+                    type="button"
+                    class="w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                    :class="route().current('*tasks*') ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-medium' : ''"
+                    @click="isTaskMenuOpen = !isTaskMenuOpen"
+                >
+                    <span class="flex items-center gap-3">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                        </svg>
+                        <span class="text-sm font-medium">Tasks</span>
+                    </span>
+                    <svg
+                        class="h-4 w-4 transition-transform"
+                        :class="isTaskMenuOpen ? 'rotate-180' : ''"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+
+                <div v-show="isTaskMenuOpen" class="mt-1 ml-4 space-y-1">
+                    <Link
+                        href="/admin/tasks/create"
+                        class="block rounded-lg px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                    >
+                        Create task
+                    </Link>
+                    <Link
+                        href="/admin/tasks"
+                        class="block rounded-lg px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                    >
+                        Manage assignments
+                    </Link>
+                </div>
+            </div>
 
             <!-- Employees -->
             <Link
@@ -122,7 +151,10 @@
 </template>
 
 <script setup>
+import { ref } from "vue";
 import { Link, usePage } from "@inertiajs/vue3";
+
+const isTaskMenuOpen = ref(usePage().url.includes("/admin/tasks"));
 
 const route = (name) => {
     return {

@@ -34,7 +34,7 @@ class TaskController extends Controller
     {
         $employees = User::all();
 
-        return Inertia::render('Admin/Task/Index', [
+        return Inertia::render('Admin/Task/Create', [
             'employees' => $employees,
         ]);
     }
@@ -175,6 +175,50 @@ class TaskController extends Controller
         }
 
         return redirect()->back()->with('success', 'Task updated successfully!');
+    }
+
+    /**
+     * Update assignees for a task.
+     */
+    public function updateAssignees(Request $request, Task $task)
+    {
+        $validated = $request->validate([
+            'assignedTo' => 'nullable|array',
+            'assignedTo.*' => 'integer|exists:users,id',
+        ]);
+
+        $assigneeIds = $validated['assignedTo'] ?? [];
+        $previousEmployeeIds = $task->assignedEmployees()->pluck('users.id')->toArray();
+
+        $task->assignedEmployees()->sync($assigneeIds);
+
+        $newEmployeeIds = array_values(array_diff($assigneeIds, $previousEmployeeIds));
+
+        foreach ($newEmployeeIds as $employeeId) {
+            Notification::create([
+                'user_id' => $employeeId,
+                'type' => 'task_assigned',
+                'title' => 'Task Assigned to You',
+                'message' => "You have been assigned to the task: \"{$task->title}\"",
+                'link' => "/employee/tasks/{$task->id}",
+            ]);
+        }
+
+        if (!empty($newEmployeeIds)) {
+            broadcast(new TaskAssigned($task, $newEmployeeIds))->toOthers();
+        }
+
+        return redirect()->back()->with('success', 'Task assignees updated successfully!');
+    }
+
+    /**
+     * Remove a specific assignee from a task.
+     */
+    public function removeAssignee(Task $task, User $user)
+    {
+        $task->assignedEmployees()->detach($user->id);
+
+        return redirect()->back()->with('success', 'User removed from task successfully!');
     }
 
     /**
