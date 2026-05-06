@@ -32,12 +32,17 @@ class AdminDashboardController extends Controller
 
     public function notifications()
     {
-        $notifications = Auth::user()->notifications()
+        $user = Auth::user();
+
+        $notifications = $user->notifications()
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
+        $unreadCount = $user->notifications()->where('is_read', false)->count();
+
         return Inertia::render('Admin/Notifications/Index', [
             'notifications' => $notifications,
+            'unreadCount' => $unreadCount,
         ]);
     }
 
