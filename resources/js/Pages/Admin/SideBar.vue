@@ -91,17 +91,46 @@
                 </div>
             </div>
 
-            <!-- Employees -->
-            <Link
-                href="/admin/employees"
-                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
-                :class="route().current('*employees*') ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-medium' : ''"
-            >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 8.048M12 4.354c2.668 0 4.91 1.78 5.656 4.25m-5.656-4.25h.01M3.344 11.604C2.632 13.156 2.25 14.883 2.25 16.667c0 2.622 1.075 4.993 2.816 6.716M9 19c0 1.304 1.12 2.357 2.5 2.357.738 0 1.394-.335 1.84-.88M15 12.25A3 3 0 1115 6.75"></path>
-                </svg>
-                <span class="text-sm font-medium">Employees</span>
-            </Link>
+            <!-- Employees Dropdown -->
+            <div>
+                <button
+                    type="button"
+                    class="w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                    :class="route().current('*employees*') ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-medium' : ''"
+                    @click="isEmployeeMenuOpen = !isEmployeeMenuOpen"
+                >
+                    <span class="flex items-center gap-3">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 8.048M12 4.354c2.668 0 4.91 1.78 5.656 4.25m-5.656-4.25h.01M3.344 11.604C2.632 13.156 2.25 14.883 2.25 16.667c0 2.622 1.075 4.993 2.816 6.716M9 19c0 1.304 1.12 2.357 2.5 2.357.738 0 1.394-.335 1.84-.88M15 12.25A3 3 0 1115 6.75"></path>
+                        </svg>
+                        <span class="text-sm font-medium">Employees</span>
+                    </span>
+                    <svg
+                        class="h-4 w-4 transition-transform"
+                        :class="isEmployeeMenuOpen ? 'rotate-180' : ''"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+
+                <div v-show="isEmployeeMenuOpen" class="mt-1 ml-4 space-y-1">
+                    <Link
+                        href="/admin/employees/create"
+                        class="block rounded-lg px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                    >
+                        Create user
+                    </Link>
+                    <Link
+                        href="/admin/employees"
+                        class="block rounded-lg px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                    >
+                        Change roles
+                    </Link>
+                </div>
+            </div>
 
             <!-- Notifications -->
             <Link
@@ -155,6 +184,7 @@ import { ref } from "vue";
 import { Link, usePage } from "@inertiajs/vue3";
 
 const isTaskMenuOpen = ref(usePage().url.includes("/admin/tasks"));
+const isEmployeeMenuOpen = ref(usePage().url.includes("/admin/employees"));
 
 const route = (name) => {
     return {

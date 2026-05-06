@@ -21,7 +21,7 @@
                         + Create Task
                     </button>
                     <button
-                        @click="$router.push('/admin/employees')"
+                        @click="$router.push('/admin/employees/create')"
                         class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
                     >
                         + Add Employee
@@ -248,7 +248,7 @@
                         </button>
 
                         <button
-                            @click="$router.push('/admin/employees')"
+                            @click="$router.push('/admin/employees/create')"
                             class="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors text-left"
                         >
                             <div class="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center mb-3">
