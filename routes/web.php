@@ -30,6 +30,7 @@ Route::prefix('/admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class,'index'])->name('dashboard');
     Route::get('/notifications', [AdminDashboardController::class,'notifications'])->name('notifications');
     Route::resource('/tasks', TaskController::class)->names('tasks');
+    Route::patch('/employees/{employee}/role', [EmployeeController::class, 'updateRole'])->name('employees.role');
     Route::resource('/employees', EmployeeController::class)->names('employees');
     Route::get('/settings', [SettingsController::class,'index'])->name('settings.index');
     Route::patch('/settings/appearance', [SettingsController::class,'updateAppearance'])->name('settings.appearance');

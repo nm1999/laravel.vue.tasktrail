@@ -15,7 +15,20 @@ class EmployeeController extends Controller
      */
     public function index()
     {
-        $employees = User::paginate(15);
+        $employees = User::with('roles')
+            ->orderBy('firstname')
+            ->orderBy('surname')
+            ->paginate(15)
+            ->through(function (User $employee) {
+                return [
+                    'id' => $employee->id,
+                    'firstname' => $employee->firstname,
+                    'surname' => $employee->surname,
+                    'email' => $employee->email,
+                    'department' => $employee->department,
+                    'role' => $employee->roles->first()?->role ?? 'employee',
+                ];
+            });
 
         return Inertia::render('Admin/Employees/Index', [
             'employees' => $employees,
@@ -42,6 +55,7 @@ class EmployeeController extends Controller
             'dateOfBirth' => 'nullable|date',
             'contact' => 'nullable|string|max:20',
             'department' => 'nullable|string|max:255',
+            'role' => 'required|in:admin,employee',
             'password' => 'required|string|min:8|confirmed',
         ]);
 
@@ -52,6 +66,8 @@ class EmployeeController extends Controller
             'department' => $validated['department'] ?? null,
             'password' => Hash::make($validated['password']),
         ]);
+
+        $this->syncRole($employee, $validated['role']);
 
         return redirect()->back()->with('success', 'Employee created successfully!');
     }
@@ -86,6 +102,7 @@ class EmployeeController extends Controller
             'dateOfBirth' => 'nullable|date',
             'contact' => 'nullable|string|max:20',
             'department' => 'nullable|string|max:255',
+            'role' => 'required|in:admin,employee',
             'password' => 'nullable|string|min:8|confirmed',
         ]);
 
@@ -102,8 +119,23 @@ class EmployeeController extends Controller
         }
 
         $employee->update($updateData);
+        $this->syncRole($employee, $validated['role']);
 
         return redirect()->back()->with('success', 'Employee updated successfully!');
+    }
+
+    /**
+     * Update only the specified employee role.
+     */
+    public function updateRole(Request $request, User $employee)
+    {
+        $validated = $request->validate([
+            'role' => 'required|in:admin,employee',
+        ]);
+
+        $this->syncRole($employee, $validated['role']);
+
+        return redirect()->back()->with('success', 'Employee role updated successfully!');
     }
 
     /**
@@ -114,5 +146,21 @@ class EmployeeController extends Controller
         $employee->delete();
 
         return redirect()->back()->with('success', 'Employee deleted successfully!');
+    }
+
+    /**
+     * Ensure the user has a single effective role in the current app flow.
+     */
+    private function syncRole(User $employee, string $role): void
+    {
+        if ($employee->roles()->exists()) {
+            $employee->roles()->update(['role' => $role]);
+
+            return;
+        }
+
+        $employee->roles()->create([
+            'role' => $role,
+        ]);
     }
 }
