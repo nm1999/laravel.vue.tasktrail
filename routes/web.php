@@ -9,7 +9,9 @@ use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\WorkspaceController;
 use App\Http\Controllers\ActivityController;
+use Illuminate\Http\Request;
 use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -22,6 +24,22 @@ Route::prefix('/api/v1')->middleware('auth')->group(function () {
     Route::patch('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('api.notifications.mark-all-read');
     Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy'])->name('api.notifications.destroy');
     Route::delete('/notifications', [NotificationController::class, 'destroyAll'])->name('api.notifications.destroy-all');
+});
+
+Route::get('/ops/start-reverb', function (Request $request) {
+    $expectedToken = env('OPS_START_TOKEN');
+    $providedToken = (string) ($request->query('token') ?: $request->header('X-OPS-TOKEN', ''));
+
+    if (empty($expectedToken) || ! hash_equals((string) $expectedToken, $providedToken)) {
+        abort(403);
+    }
+
+    Artisan::call('ops:start-reverb');
+
+    return response()->json([
+        'message' => 'Reverb startup command executed.',
+        'output' => trim(Artisan::output()),
+    ]);
 });
 
 
