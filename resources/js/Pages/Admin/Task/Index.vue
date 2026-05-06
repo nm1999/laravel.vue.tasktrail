@@ -1,218 +1,171 @@
 <template>
     <div class="flex h-screen bg-gray-100">
-        <!-- Sidebar -->
         <aside class="w-64 bg-white shadow-md p-4">
             <SideBar />
         </aside>
         <main class="flex-1 p-6 overflow-auto">
-            <h3 class="text-2xl font-bold mb-6">Tasks</h3>
+            <div class="mb-6 flex items-center justify-between">
+                <h3 class="text-2xl font-bold">Manage Task Assignments</h3>
+                <button
+                    type="button"
+                    class="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+                    @click="router.visit('/admin/tasks/create')"
+                >
+                    Create Task
+                </button>
+            </div>
 
-            <!-- Create Task Form -->
             <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-xl font-semibold mb-6">Create New Task</h2>
-                <p v-if="message" class="text-sm text-red-600">{{ message }}</p>
-
-                <form @submit.prevent="handleSubmit" class="space-y-6">
-                    <!-- Title -->
+                <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
                     <div>
-                        <InputLabel value="Task Title" />
+                        <h2 class="text-xl font-semibold">Task Assignments</h2>
+                        <p class="text-sm text-gray-500">
+                            View tasks, assigned team members, and their status.
+                        </p>
+                    </div>
+                    <div class="w-full md:w-80">
+                        <InputLabel value="Search tasks" />
                         <TextInput
-                            v-model="form.title"
+                            v-model="taskSearch"
                             type="text"
-                            placeholder="Enter task title"
+                            placeholder="Search by title, assignee, or status"
                             class="w-full mt-2 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         />
                     </div>
+                </div>
 
-                    <!-- Description -->
-                    <div>
-                        <InputLabel value="Description" />
-                        <textarea
-                            v-model="form.description"
-                            placeholder="Enter task description"
-                            rows="4"
-                            class="w-full mt-2 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                        ></textarea>
-                    </div>
-
-                    <!-- Grid for Assigned To and Deadline -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Assigned To (Searchable Multi-select) -->
-                        <div class="relative" ref="dropdownContainer">
-                            <InputLabel value="Assigned To" />
-
-                            <!-- Search Input -->
-                            <div class="relative mt-2">
-                                <input
-                                    v-model="searchQuery"
-                                    @focus="showDropdown = true"
-                                    @input="showDropdown = true"
-                                    type="text"
-                                    placeholder="Search team members..."
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 pr-10"
-                                />
-                                <div
-                                    class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none"
-                                >
-                                    <svg
-                                        class="w-4 h-4 text-gray-400"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
+                <div class="mt-6 overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
+                                    Task
+                                </th>
+                                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
+                                    Assigned People
+                                </th>
+                                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
+                                    Status
+                                </th>
+                                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
+                                    Deadline
+                                </th>
+                                <th class="px-4 py-3 text-right text-xs font-medium uppercase tracking-wide text-gray-500">
+                                    Update
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 bg-white">
+                            <tr v-for="task in filteredTasks" :key="task.id">
+                                <td class="px-4 py-4">
+                                    <p class="font-medium text-gray-900">{{ task.title }}</p>
+                                    <p class="text-sm text-gray-500">
+                                        {{ task.description || "No description" }}
+                                    </p>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div
+                                        v-if="task.assignedEmployees.length"
+                                        class="flex flex-wrap gap-2"
                                     >
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            stroke-width="2"
-                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                                        ></path>
-                                    </svg>
-                                </div>
-                            </div>
-
-                            <!-- Dropdown -->
-                            <div
-                                v-show="showDropdown"
-                                class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto"
-                            >
-                                <div
-                                    v-if="filteredEmployees.length === 0"
-                                    class="px-3 py-2 text-gray-500 text-sm"
-                                >
-                                    No team members found
-                                </div>
-                                <div
-                                    v-for="employee in filteredEmployees"
-                                    :key="employee.id"
-                                    @click="toggleEmployee(employee.id)"
-                                    class="px-3 py-2 hover:bg-gray-100 cursor-pointer flex items-center justify-between"
-                                    :class="{
-                                        'bg-blue-50': isSelected(employee.id),
-                                    }"
-                                >
-                                    <div class="flex items-center gap-3">
-                                        <div
-                                            class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-xs font-medium"
+                                        <span
+                                            v-for="person in task.assignedEmployees"
+                                            :key="`${task.id}-${person.id}`"
+                                            class="inline-flex items-center gap-2 rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800"
                                         >
-                                            {{ employee.initials }}
-                                        </div>
-                                        <div>
-                                            <div
-                                                class="font-medium text-gray-900"
+                                            {{ person.firstname }} {{ person.surname }}
+                                            <button
+                                                type="button"
+                                                class="rounded-full bg-blue-200 px-1 leading-none text-blue-900 hover:bg-blue-300"
+                                                title="Remove user from task"
+                                                @click="removeAssignee(task, person.id)"
+                                            >
+                                                x
+                                            </button>
+                                        </span>
+                                    </div>
+                                    <span v-else class="text-sm text-gray-500">
+                                        Unassigned
+                                    </span>
+
+                                    <div class="mt-3">
+                                        <label class="mb-1 block text-xs font-medium uppercase tracking-wide text-gray-500">
+                                            Modify assignees
+                                        </label>
+                                        <select
+                                            v-model="assignmentSelections[task.id]"
+                                            multiple
+                                            class="w-full rounded-md border border-gray-300 px-2 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                                        >
+                                            <option
+                                                v-for="employee in employees"
+                                                :key="`${task.id}-option-${employee.id}`"
+                                                :value="employee.id"
                                             >
                                                 {{ employee.name }}
-                                            </div>
-                                            <div class="text-sm text-gray-500">
-                                                {{ employee.role }}
-                                            </div>
-                                        </div>
+                                            </option>
+                                        </select>
+                                        <p class="mt-1 text-xs text-gray-500">
+                                            Hold Ctrl/Cmd to select multiple users.
+                                        </p>
                                     </div>
-                                    <div
-                                        v-if="isSelected(employee.id)"
-                                        class="text-blue-600"
+                                </td>
+                                <td class="px-4 py-4">
+                                    <span
+                                        class="inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide"
+                                        :class="statusClass(task.status)"
                                     >
-                                        <svg
-                                            class="w-5 h-5"
-                                            fill="currentColor"
-                                            viewBox="0 0 20 20"
-                                        >
-                                            <path
-                                                fill-rule="evenodd"
-                                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                                clip-rule="evenodd"
-                                            ></path>
-                                        </svg>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Selected Count -->
-                            <p class="text-xs text-gray-500 mt-2">
-                                {{ form.assignedTo.length }} team member{{
-                                    form.assignedTo.length !== 1 ? "s" : ""
-                                }}
-                                selected
-                            </p>
-                        </div>
-
-                        <!-- Deadline -->
-                        <div>
-                            <InputLabel value="Deadline" />
-                            <TextInput
-                                v-model="form.deadline"
-                                type="datetime-local"
-                                class="w-full mt-2 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                            />
-                        </div>
-                    </div>
-
-                    <!-- Selected Team Members Display -->
-                    <div
-                        v-if="form.assignedTo.length > 0"
-                        class="bg-blue-50 border border-blue-200 rounded-md p-4"
-                    >
-                        <p class="text-sm font-medium text-blue-900 mb-3">
-                            Selected Team Members:
-                        </p>
-                        <div class="flex flex-wrap gap-2">
-                            <span
-                                v-for="employeeId in form.assignedTo"
-                                :key="employeeId"
-                                class="inline-flex items-center gap-2 bg-blue-200 text-blue-800 px-3 py-2 rounded-full text-sm"
-                            >
-                                <div
-                                    class="w-5 h-5 bg-blue-300 rounded-full flex items-center justify-center text-xs font-medium"
-                                >
-                                    {{ getEmployeeById(employeeId).initials }}
-                                </div>
-                                {{ getEmployeeById(employeeId).name }}
-                                <button
-                                    @click="removeEmployee(employeeId)"
-                                    class="ml-1 hover:bg-blue-300 rounded-full p-0.5 transition-colors"
-                                >
-                                    <svg
-                                        class="w-3 h-3"
-                                        fill="currentColor"
-                                        viewBox="0 0 20 20"
+                                        {{ formatStatus(task.status) }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-600">
+                                    {{ formatDeadline(task.deadline) }}
+                                </td>
+                                <td class="px-4 py-4 text-right">
+                                    <button
+                                        type="button"
+                                        class="rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+                                        :disabled="isSelectionUnchanged(task)"
+                                        @click="saveAssignees(task)"
                                     >
-                                        <path
-                                            fill-rule="evenodd"
-                                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                            clip-rule="evenodd"
-                                        ></path>
-                                    </svg>
-                                </button>
-                            </span>
-                        </div>
-                    </div>
+                                        Save assignees
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr v-if="filteredTasks.length === 0">
+                                <td colspan="5" class="px-4 py-6 text-center text-sm text-gray-500">
+                                    No tasks found for the current search.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
 
-                    <!-- Submit Button -->
-                    <div class="flex justify-end gap-4">
-                        <button
-                            type="button"
-                            @click="resetForm"
-                            class="px-6 py-2 bg-gray-300 text-gray-800 font-medium rounded-md hover:bg-gray-400 transition-colors"
-                        >
-                            Clear
-                        </button>
-                        <button
-                            :disabled="isLoading"
-                            type="submit"
-                            class="px-6 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors"
-                        >
-                            <i v-if="isLoading" class="fa fa-spin"></i>
-                            Create Task
-                        </button>
-                    </div>
-                </form>
+                <div
+                    v-if="taskPaginationLinks.length"
+                    class="mt-6 flex flex-wrap items-center justify-end gap-2"
+                >
+                    <button
+                        v-for="link in taskPaginationLinks"
+                        :key="`${link.label}-${link.url}`"
+                        type="button"
+                        :disabled="!link.url"
+                        class="rounded-md border px-3 py-2 text-sm transition-colors"
+                        :class="link.active
+                            ? 'border-slate-900 bg-slate-900 text-white'
+                            : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50'"
+                        v-html="link.label"
+                        @click="goToTaskPage(link.url)"
+                    />
+                </div>
             </div>
         </main>
     </div>
 </template>
 
 <script>
-import { ref, computed, onMounted, onUnmounted, watch } from "vue";
-import { router, usePage } from "@inertiajs/vue3";
+import { computed, ref, watch } from "vue";
+import { router } from "@inertiajs/vue3";
 import Swal from "sweetalert2";
 import SideBar from "../SideBar.vue";
 import TextInput from "@/Components/TextInput.vue";
@@ -230,32 +183,78 @@ export default {
             type: [Array, Object],
             default: () => [],
         },
+        tasks: {
+            type: [Array, Object],
+            default: () => [],
+        },
     },
     setup(props) {
-        const page = usePage();
-        const form = ref({
-            title: "",
-            description: "",
-            assignedTo: [],
-            deadline: "",
-            status: "todo",
+        const taskSearch = ref("");
+        const assignmentSelections = ref({});
+
+        const taskList = computed(() => {
+            const source = Array.isArray(props.tasks)
+                ? props.tasks
+                : props.tasks?.data || [];
+
+            return source.map((task) => ({
+                ...task,
+                assignedEmployees: task.assigned_employees || task.assignedEmployees || [],
+            }));
         });
 
-        // Search and dropdown state
-        const searchQuery = ref("");
-        const showDropdown = ref(false);
-        const dropdownContainer = ref(null);
-        const message = ref(null);
-        const isLoading = ref(false);
+        const filteredTasks = computed(() => {
+            const query = taskSearch.value.trim().toLowerCase();
 
-        // Normalize employees coming from Laravel/Inertia
+            if (!query) {
+                return taskList.value;
+            }
+
+            return taskList.value.filter((task) => {
+                const assigneeNames = task.assignedEmployees
+                    .map((person) => `${person.firstname || ""} ${person.surname || ""}`.trim())
+                    .join(" ")
+                    .toLowerCase();
+
+                const haystack = [
+                    task.title,
+                    task.description,
+                    task.status,
+                    assigneeNames,
+                ]
+                    .filter(Boolean)
+                    .join(" ")
+                    .toLowerCase();
+
+                return haystack.includes(query);
+            });
+        });
+
+        const taskPaginationLinks = computed(() =>
+            (props.tasks?.links || []).filter(
+                (link) => link.label !== "Previous" && link.label !== "Next"
+            )
+        );
+
+        watch(
+            taskList,
+            (tasks) => {
+                assignmentSelections.value = tasks.reduce((selectionMap, task) => {
+                    selectionMap[task.id] = task.assignedEmployees.map((person) => person.id);
+
+                    return selectionMap;
+                }, {});
+            },
+            { immediate: true }
+        );
+
         const employees = computed(() => {
             const source = Array.isArray(props.employees)
                 ? props.employees
                 : props.employees?.data || [];
 
             return source.map((employee) => {
-                const fullName = `${employee.firstname || ""} ${employee.lastname || ""}`.trim() || "Unknown";
+                const fullName = `${employee.firstname || ""} ${employee.surname || ""}`.trim() || "Unknown";
                 const initials = fullName
                     .split(" ")
                     .filter(Boolean)
@@ -273,139 +272,145 @@ export default {
             });
         });
 
-        // Filtered employees based on search
-        const filteredEmployees = computed(() => {
-            if (!searchQuery.value) {
-                return employees.value;
+        const formatStatus = (status) => {
+            const labels = {
+                todo: "To do",
+                in_progress: "In progress",
+                completed: "Completed",
+            };
+
+            return labels[status] || status || "Unknown";
+        };
+
+        const statusClass = (status) => {
+            const classes = {
+                todo: "bg-gray-100 text-gray-800",
+                in_progress: "bg-amber-100 text-amber-800",
+                completed: "bg-green-100 text-green-800",
+            };
+
+            return classes[status] || "bg-slate-100 text-slate-800";
+        };
+
+        const formatDeadline = (value) => {
+            if (!value) {
+                return "No deadline";
             }
-            const query = searchQuery.value.toLowerCase();
-            return employees.value.filter(
-                (employee) =>
-                    employee.name.toLowerCase().includes(query) ||
-                    employee.role.toLowerCase().includes(query),
-            );
-        });
 
-        // Check if employee is selected
-        const isSelected = (employeeId) => {
-            return form.value.assignedTo.includes(employeeId);
-        };
-
-        // Toggle employee selection
-        const toggleEmployee = (employeeId) => {
-            const index = form.value.assignedTo.indexOf(employeeId);
-            if (index > -1) {
-                form.value.assignedTo.splice(index, 1);
-            } else {
-                form.value.assignedTo.push(employeeId);
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) {
+                return value;
             }
+
+            return date.toLocaleString();
         };
 
-        // Handle click outside to close dropdown
-        const handleClickOutside = (event) => {
-            if (
-                dropdownContainer.value &&
-                !dropdownContainer.value.contains(event.target)
-            ) {
-                showDropdown.value = false;
-            }
-        };
-
-        // Get employee by ID
-        const getEmployeeById = (employeeId) => {
-            return (
-                employees.value.find((emp) => emp.id === employeeId) || {
-                    name: "Unknown",
-                    initials: "??",
-                }
-            );
-        };
-
-        // Remove employee from selection
-        const removeEmployee = (employeeId) => {
-            const index = form.value.assignedTo.indexOf(employeeId);
-            if (index > -1) {
-                form.value.assignedTo.splice(index, 1);
-            }
-        };
-
-        // Lifecycle hooks for click outside detection
-        onMounted(() => {
-            document.addEventListener("click", handleClickOutside);
-        });
-
-        onUnmounted(() => {
-            document.removeEventListener("click", handleClickOutside);
-        });
-
-        const showSuccessAlert = (successMessage) => {
-            if (!successMessage) {
+        const goToTaskPage = (url) => {
+            if (!url) {
                 return;
             }
 
-            Swal.fire({
-                title: "Task created",
-                text: successMessage,
-                icon: "success",
-                confirmButtonText: "OK",
+            router.visit(url, {
+                preserveScroll: true,
+                preserveState: true,
             });
         };
 
-        watch(
-            () => page.props.flash?.success,
-            (successMessage) => {
-                if (!successMessage) {
-                    return;
+        const normalizeSelection = (selection = []) =>
+            [...selection].map(Number).sort((a, b) => a - b);
+
+        const isSelectionUnchanged = (task) => {
+            const current = normalizeSelection(
+                task.assignedEmployees.map((person) => person.id)
+            );
+            const selected = normalizeSelection(assignmentSelections.value[task.id] || []);
+
+            return JSON.stringify(current) === JSON.stringify(selected);
+        };
+
+        const saveAssignees = (task) => {
+            router.patch(
+                `/admin/tasks/${task.id}/assignees`,
+                {
+                    assignedTo: normalizeSelection(assignmentSelections.value[task.id] || []),
+                },
+                {
+                    preserveScroll: true,
+                    onSuccess: () => {
+                        Swal.fire({
+                            title: "Task updated",
+                            text: "Task assignees were updated successfully.",
+                            icon: "success",
+                            confirmButtonText: "OK",
+                        });
+                    },
+                    onError: () => {
+                        Swal.fire({
+                            title: "Unable to update task",
+                            text: "Please try again.",
+                            icon: "error",
+                            confirmButtonText: "OK",
+                        });
+                    },
                 }
+            );
+        };
 
-                showSuccessAlert(successMessage);
-                resetForm();
-                isLoading.value = false;
-                message.value = null;
-            },
-            { immediate: true },
-        );
+        const removeAssignee = async (task, userId) => {
+            const person = task.assignedEmployees.find((employee) => employee.id === userId);
+            const personName = person
+                ? `${person.firstname || ""} ${person.surname || ""}`.trim()
+                : "this user";
 
-        const handleSubmit = () => {
-            isLoading.value = true;
-            router.post("/admin/tasks", form.value, {
+            const confirmation = await Swal.fire({
+                title: "Remove assignee?",
+                text: `Remove ${personName} from \"${task.title}\"?`,
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, remove",
+                cancelButtonText: "Cancel",
+                reverseButtons: true,
+            });
+
+            if (!confirmation.isConfirmed) {
+                return;
+            }
+
+            router.delete(`/admin/tasks/${task.id}/assignees/${userId}`, {
+                preserveScroll: true,
                 onSuccess: () => {
-                    message.value = null;
-                    isLoading.value = false;
+                    Swal.fire({
+                        title: "User removed",
+                        text: "The user has been removed from the task.",
+                        icon: "success",
+                        confirmButtonText: "OK",
+                    });
                 },
                 onError: () => {
-                    message.value = "Unable to create task. Check the form and try again.";
-                    isLoading.value = false;
+                    Swal.fire({
+                        title: "Unable to remove user",
+                        text: "Please try again.",
+                        icon: "error",
+                        confirmButtonText: "OK",
+                    });
                 },
             });
-        };
-
-        const resetForm = () => {
-            form.value = {
-                title: "",
-                description: "",
-                assignedTo: [],
-                deadline: "",
-                status: "todo",
-            };
-            searchQuery.value = "";
         };
 
         return {
-            form,
-            searchQuery,
-            showDropdown,
-            dropdownContainer,
+            router,
+            taskSearch,
+            filteredTasks,
+            taskPaginationLinks,
+            assignmentSelections,
             employees,
-            filteredEmployees,
-            isSelected,
-            toggleEmployee,
-            getEmployeeById,
-            removeEmployee,
-            handleSubmit,
-            resetForm,
-            message,
-            isLoading,
+            formatStatus,
+            statusClass,
+            formatDeadline,
+            goToTaskPage,
+            isSelectionUnchanged,
+            saveAssignees,
+            removeAssignee,
         };
     },
 };

@@ -90,7 +90,7 @@ class AuthController extends Controller
             if ($role === 'admin') {
                 return redirect()->intended('/admin/dashboard');
             } else {
-                return redirect()->intended('/admin/dashboard');
+                return redirect()->intended('/employee/dashboard');
             }
         }else{
             return Inertia::render('Home', [
