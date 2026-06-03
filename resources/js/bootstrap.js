@@ -54,3 +54,12 @@ if (!reverbKey) {
         enabledTransports: useTls ? ['wss'] : ['ws'],
     });
 }
+
+// Initialize Firebase
+try {
+    import('@/config/firebase').then(() => {
+        console.log('Firebase initialized successfully');
+    });
+} catch (error) {
+    console.warn('Firebase initialization failed (optional):', error);
+}
