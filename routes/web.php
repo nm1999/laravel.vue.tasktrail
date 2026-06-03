@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\TaskController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\Api\FCMTokenController;
 use App\Http\Controllers\WorkspaceController;
 use App\Http\Controllers\ActivityController;
 use Illuminate\Http\Request;
@@ -24,6 +25,12 @@ Route::prefix('/api/v1')->middleware('auth')->group(function () {
     Route::patch('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('api.notifications.mark-all-read');
     Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy'])->name('api.notifications.destroy');
     Route::delete('/notifications', [NotificationController::class, 'destroyAll'])->name('api.notifications.destroy-all');
+    
+    // Firebase Cloud Messaging (FCM) Token Routes
+    Route::post('/notifications/fcm-token', [FCMTokenController::class, 'store'])->name('api.fcm-token.store');
+    Route::post('/notifications/fcm-token/unsubscribe', [FCMTokenController::class, 'unsubscribe'])->name('api.fcm-token.unsubscribe');
+    Route::get('/notifications/fcm-tokens', [FCMTokenController::class, 'index'])->name('api.fcm-tokens.index');
+    Route::delete('/notifications/fcm-tokens/{token}', [FCMTokenController::class, 'destroy'])->name('api.fcm-token.destroy');
 });
 
 Route::get('/ops/start-reverb', function (Request $request) {
