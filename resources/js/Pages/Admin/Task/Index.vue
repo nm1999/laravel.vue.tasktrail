@@ -122,14 +122,25 @@
                                     {{ formatDeadline(task.deadline) }}
                                 </td>
                                 <td class="px-4 py-4 text-right">
-                                    <button
-                                        type="button"
-                                        class="rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-700 disabled:cursor-not-allowed disabled:bg-slate-300"
-                                        :disabled="isSelectionUnchanged(task)"
-                                        @click="saveAssignees(task)"
-                                    >
-                                        Save assignees
-                                    </button>
+                                    <div class="flex items-center justify-end gap-2">
+                                        <button
+                                            type="button"
+                                            class="rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+                                            :disabled="isSelectionUnchanged(task)"
+                                            @click="saveAssignees(task)"
+                                        >
+                                            Save assignees
+                                        </button>
+                                        <button
+                                            type="button"
+                                            class="inline-flex h-10 w-10 items-center justify-center rounded-md border border-red-200 text-red-600 transition-colors hover:bg-red-50 hover:text-red-700"
+                                            title="Delete task"
+                                            aria-label="Delete task"
+                                            @click="deleteTask(task)"
+                                        >
+                                            <span aria-hidden="true">&#128465;</span>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                             <tr v-if="filteredTasks.length === 0">
@@ -397,6 +408,42 @@ export default {
             });
         };
 
+        const deleteTask = async (task) => {
+            const confirmation = await Swal.fire({
+                title: "Delete task?",
+                text: `Delete "${task.title}"? This action cannot be undone.`,
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, delete",
+                cancelButtonText: "Cancel",
+                reverseButtons: true,
+            });
+
+            if (!confirmation.isConfirmed) {
+                return;
+            }
+
+            router.delete(`/admin/tasks/${task.id}`, {
+                preserveScroll: true,
+                onSuccess: () => {
+                    Swal.fire({
+                        title: "Task deleted",
+                        text: "The task has been deleted.",
+                        icon: "success",
+                        confirmButtonText: "OK",
+                    });
+                },
+                onError: () => {
+                    Swal.fire({
+                        title: "Unable to delete task",
+                        text: "Please try again.",
+                        icon: "error",
+                        confirmButtonText: "OK",
+                    });
+                },
+            });
+        };
+
         return {
             router,
             taskSearch,
@@ -411,6 +458,7 @@ export default {
             isSelectionUnchanged,
             saveAssignees,
             removeAssignee,
+            deleteTask,
         };
     },
 };
