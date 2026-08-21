@@ -60,7 +60,6 @@
                         </span>
                     </div>
                 </div>
-
                 <div class="mt-6 overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
@@ -73,6 +72,9 @@
                                 </th>
                                 <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
                                     Current access
+                                </th>
+                                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
+                                    Status
                                 </th>
                                 <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
                                     Role
@@ -109,15 +111,25 @@
                                     </span>
                                 </td>
                                 <td class="px-4 py-4">
-                                    <select
-                                        v-model="roleSelections[employee.id]"
-                                        class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-                                    >
-                                        <option value="employee">Employee</option>
-                                        <option value="admin">Admin</option>
-                                    </select>
+                                    <div class="flex items-center gap-3">
+                                        <span
+                                            class="inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide"
+                                            :class="employee.is_active
+                                                ? 'bg-emerald-100 text-emerald-800'
+                                                : 'bg-gray-100 text-gray-700'"
+                                        >
+                                            {{ employee.is_active ? "Active" : "Inactive" }}
+                                        </span>
+                                        <select
+                                            v-model="statusSelections[employee.id]"
+                                            class="rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                                        >
+                                            <option :value="true">Active</option>
+                                            <option :value="false">Inactive</option>
+                                        </select>
+                                    </div>
                                 </td>
-                                <td class="px-4 py-4 text-right">
+                                <td class="space-y-2 px-4 py-4 text-right">
                                     <button
                                         type="button"
                                         class="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-700 disabled:cursor-not-allowed disabled:bg-slate-300"
@@ -126,10 +138,18 @@
                                     >
                                         Save role
                                     </button>
+                                    <button
+                                        type="button"
+                                        class="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
+                                        :disabled="statusSelections[employee.id] === employee.is_active"
+                                        @click="updateStatus(employee)"
+                                    >
+                                        Save status
+                                    </button>
                                 </td>
                             </tr>
                             <tr v-if="filteredEmployees.length === 0">
-                                <td colspan="5" class="px-4 py-6 text-center text-sm text-gray-500">
+                                <td colspan="6" class="px-4 py-6 text-center text-sm text-gray-500">
                                     No employees match your search.
                                 </td>
                             </tr>
@@ -183,6 +203,7 @@ export default {
     setup(props) {
         const search = ref("");
         const roleSelections = ref({});
+        const statusSelections = ref({});
 
         const employeeList = computed(() => props.employees?.data || []);
         const totalEmployees = computed(() => props.employees?.total || employeeList.value.length);
@@ -212,6 +233,7 @@ export default {
                     employee.email,
                     employee.department,
                     employee.role,
+                    employee.is_active
                 ]
                     .filter(Boolean)
                     .join(" ")
@@ -226,6 +248,11 @@ export default {
             (employees) => {
                 roleSelections.value = employees.reduce((selections, employee) => {
                     selections[employee.id] = employee.role || "employee";
+
+                    return selections;
+                }, {});
+                statusSelections.value = employees.reduce((selections, employee) => {
+                    selections[employee.id] = Boolean(employee.is_active);
 
                     return selections;
                 }, {});
@@ -262,6 +289,35 @@ export default {
             );
         };
 
+        const updateStatus = (employee) => {
+            router.patch(
+                `/admin/employees/${employee.id}/status`,
+                {
+                    is_active: statusSelections.value[employee.id],
+                },
+                {
+                    preserveScroll: true,
+                    onSuccess: () => {
+                        Swal.fire({
+                            title: "Status updated",
+                            text: `${employee.firstname} ${employee.surname} is now ${statusSelections.value[employee.id] ? "active" : "inactive"}.`,
+                            icon: "success",
+                            confirmButtonText: "OK",
+                        });
+                    },
+                    onError: () => {
+                        statusSelections.value[employee.id] = Boolean(employee.is_active);
+                        Swal.fire({
+                            title: "Unable to update status",
+                            text: "The status could not be changed. Try again.",
+                            icon: "error",
+                            confirmButtonText: "OK",
+                        });
+                    },
+                }
+            );
+        };
+
         const goToPage = (url) => {
             if (!url) {
                 return;
@@ -282,8 +338,10 @@ export default {
             goToPage,
             paginationLinks,
             roleSelections,
+            statusSelections,
             totalEmployees,
             updateRole,
+            updateStatus,
         };
     },
 };
