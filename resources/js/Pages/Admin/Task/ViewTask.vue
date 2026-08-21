@@ -69,10 +69,10 @@
                                 class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
                             >
                                 <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
-                                    {{ getInitials(employee.name) }}
+                                    {{ getInitials(`${employee.firstname || ''} ${employee.surname || ''}`) }}
                                 </div>
                                 <div>
-                                    <p class="font-medium text-gray-900">{{ employee.name }}</p>
+                                    <p class="font-medium text-gray-900">{{ employee.firstname }} {{ employee.surname }}</p>
                                     <p class="text-sm text-gray-500">Email: {{ employee.email }}</p>
                                 </div>
                             </div>
@@ -80,6 +80,57 @@
                         <div v-else class="text-gray-500 text-center py-6">
                             No team members assigned yet
                         </div>
+                    </div>
+
+                    <!-- Comments -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="mb-4 flex items-center justify-between">
+                            <h2 class="text-lg font-semibold text-gray-900">Comments</h2>
+                            <span class="text-sm text-gray-500">
+                                {{ task?.comments_count || task?.comments?.length || 0 }}
+                            </span>
+                        </div>
+                        <div v-if="task?.comments?.length" class="space-y-4">
+                            <article
+                                v-for="comment in task.comments"
+                                :key="comment.id"
+                                class="rounded-lg border border-gray-200 bg-gray-50 p-4"
+                            >
+                                <div class="flex items-center justify-between gap-4">
+                                    <p class="font-medium text-gray-900">
+                                        {{ comment.author?.firstname }} {{ comment.author?.surname }}
+                                    </p>
+                                    <time class="text-xs text-gray-500">{{ formatDate(comment.created_at) }}</time>
+                                </div>
+                                <p class="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-gray-700">
+                                    {{ comment.body }}
+                                </p>
+                            </article>
+                        </div>
+                        <p v-else class="text-sm text-gray-500">No comments yet.</p>
+
+                        <form class="mt-5 border-t border-gray-200 pt-5" @submit.prevent="submitComment">
+                            <label for="comment" class="mb-2 block text-sm font-medium text-gray-700">
+                                Add a comment
+                            </label>
+                            <textarea
+                                id="comment"
+                                v-model="commentBody"
+                                rows="4"
+                                maxlength="2000"
+                                class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                                placeholder="Write an update or reply..."
+                            ></textarea>
+                            <div class="mt-3 flex justify-end">
+                                <button
+                                    type="submit"
+                                    class="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
+                                    :disabled="!commentBody.trim()"
+                                >
+                                    Post comment
+                                </button>
+                            </div>
+                        </form>
                     </div>
 
                     <!-- Activities/Timeline -->
@@ -177,7 +228,8 @@
 </template>
 
 <script setup>
-import { Link } from '@inertiajs/vue3'
+import { ref } from 'vue'
+import { Link, router } from '@inertiajs/vue3'
 import SideBar from '../SideBar.vue'
 
 const props = defineProps({
@@ -186,6 +238,23 @@ const props = defineProps({
         required: true,
     },
 })
+
+const commentBody = ref('')
+
+const submitComment = () => {
+    if (!commentBody.value.trim()) {
+        return
+    }
+
+    router.post(`/admin/tasks/${props.task.id}/comments`, {
+        body: commentBody.value,
+    }, {
+        preserveScroll: true,
+        onSuccess: () => {
+            commentBody.value = ''
+        },
+    })
+}
 
 const getInitials = (name) => {
     return name

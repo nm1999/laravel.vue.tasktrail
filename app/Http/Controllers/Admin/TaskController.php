@@ -7,6 +7,7 @@ use App\Events\TaskCreated;
 use App\Http\Controllers\Controller;
 use App\Models\Notification;
 use App\Models\Task;
+use App\Models\TaskComment;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -98,11 +99,36 @@ class TaskController extends Controller
      */
     public function show(Task $task)
     {
-        $task->load('creator', 'assignedEmployees', 'activities');
+        $task->load([
+            'creator:id,firstname,surname,email',
+            'assignedEmployees:id,firstname,surname,email',
+            'activities',
+            'comments' => function ($query) {
+                $query->with('author:id,firstname,surname')->latest();
+            },
+        ])->loadCount('comments');
 
-        return Inertia::render('Admin/Task/Index', [
+        return Inertia::render('Admin/Task/ViewTask', [
             'task' => $task,
         ]);
+    }
+
+    /**
+     * Store an admin comment on a task.
+     */
+    public function storeComment(Request $request, Task $task)
+    {
+        $validated = $request->validate([
+            'body' => 'required|string|max:2000',
+        ]);
+
+        TaskComment::create([
+            'task_id' => $task->id,
+            'user_id' => auth()->id(),
+            'body' => $validated['body'],
+        ]);
+
+        return redirect()->back()->with('success', 'Comment posted.');
     }
 
     /**

@@ -56,6 +56,7 @@ Route::prefix('/admin')->name('admin.')->group(function () {
     Route::get('/notifications', [AdminDashboardController::class,'notifications'])->name('notifications');
     Route::patch('/tasks/{task}/assignees', [TaskController::class, 'updateAssignees'])->name('tasks.assignees.update');
     Route::delete('/tasks/{task}/assignees/{user}', [TaskController::class, 'removeAssignee'])->name('tasks.assignees.remove');
+    Route::post('/tasks/{task}/comments', [TaskController::class, 'storeComment'])->name('tasks.comments.store');
     Route::resource('/tasks', TaskController::class)->names('tasks');
     Route::patch('/employees/{employee}/role', [EmployeeController::class, 'updateRole'])->name('employees.role');
     Route::patch('/employees/{employee}/status', [EmployeeController::class, 'updateStatus'])->name('employees.status');

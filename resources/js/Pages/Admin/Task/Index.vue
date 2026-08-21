@@ -58,7 +58,12 @@
                         <tbody class="divide-y divide-gray-200 bg-white">
                             <tr v-for="task in filteredTasks" :key="task.id">
                                 <td class="px-4 py-4">
-                                    <p class="font-medium text-gray-900">{{ task.title }}</p>
+                                    <Link
+                                        :href="`/admin/tasks/${task.id}`"
+                                        class="font-medium text-blue-700 hover:text-blue-900 hover:underline"
+                                    >
+                                        {{ task.title }}
+                                    </Link>
                                     <p class="text-sm text-gray-500">
                                         {{ task.description || "No description" }}
                                     </p>
@@ -131,6 +136,14 @@
                                         >
                                             Save assignees
                                         </button>
+                                        <Link
+                                            :href="`/admin/tasks/${task.id}`"
+                                            class="inline-flex h-10 w-10 items-center justify-center rounded-md border border-blue-200 text-blue-600 transition-colors hover:bg-blue-50 hover:text-blue-700"
+                                            title="View task"
+                                            aria-label="View task"
+                                        >
+                                            <span aria-hidden="true">&#128065;</span>
+                                        </Link>
                                         <button
                                             type="button"
                                             class="inline-flex h-10 w-10 items-center justify-center rounded-md border border-red-200 text-red-600 transition-colors hover:bg-red-50 hover:text-red-700"
@@ -176,7 +189,7 @@
 
 <script>
 import { computed, ref, watch } from "vue";
-import { router } from "@inertiajs/vue3";
+import { Link, router } from "@inertiajs/vue3";
 import Swal from "sweetalert2";
 import SideBar from "../SideBar.vue";
 import TextInput from "@/Components/TextInput.vue";
@@ -188,6 +201,7 @@ export default {
         SideBar,
         TextInput,
         InputLabel,
+        Link,
     },
     props: {
         employees: {
