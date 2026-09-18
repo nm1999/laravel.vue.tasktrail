@@ -26,6 +26,7 @@ class EmployeeController extends Controller
                     'surname' => $employee->surname,
                     'email' => $employee->email,
                     'department' => $employee->department,
+                    'is_active' => (bool) $employee->is_active,
                     'role' => $employee->roles->first()?->role ?? 'employee',
                 ];
             });
@@ -136,6 +137,22 @@ class EmployeeController extends Controller
         $this->syncRole($employee, $validated['role']);
 
         return redirect()->back()->with('success', 'Employee role updated successfully!');
+    }
+
+    /**
+     * Update only the specified employee status.
+     */
+    public function updateStatus(Request $request, User $employee)
+    {
+        $validated = $request->validate([
+            'is_active' => 'required|boolean',
+        ]);
+
+        $employee->update([
+            'is_active' => $validated['is_active'],
+        ]);
+
+        return redirect()->back()->with('success', 'Employee status updated successfully!');
     }
 
     /**

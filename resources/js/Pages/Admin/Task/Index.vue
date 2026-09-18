@@ -58,7 +58,12 @@
                         <tbody class="divide-y divide-gray-200 bg-white">
                             <tr v-for="task in filteredTasks" :key="task.id">
                                 <td class="px-4 py-4">
-                                    <p class="font-medium text-gray-900">{{ task.title }}</p>
+                                    <Link
+                                        :href="`/admin/tasks/${task.id}`"
+                                        class="font-medium text-blue-700 hover:text-blue-900 hover:underline"
+                                    >
+                                        {{ task.title }}
+                                    </Link>
                                     <p class="text-sm text-gray-500">
                                         {{ task.description || "No description" }}
                                     </p>
@@ -122,14 +127,33 @@
                                     {{ formatDeadline(task.deadline) }}
                                 </td>
                                 <td class="px-4 py-4 text-right">
-                                    <button
-                                        type="button"
-                                        class="rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-700 disabled:cursor-not-allowed disabled:bg-slate-300"
-                                        :disabled="isSelectionUnchanged(task)"
-                                        @click="saveAssignees(task)"
-                                    >
-                                        Save assignees
-                                    </button>
+                                    <div class="flex items-center justify-end gap-2">
+                                        <button
+                                            type="button"
+                                            class="rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+                                            :disabled="isSelectionUnchanged(task)"
+                                            @click="saveAssignees(task)"
+                                        >
+                                            Save assignees
+                                        </button>
+                                        <Link
+                                            :href="`/admin/tasks/${task.id}`"
+                                            class="inline-flex h-10 w-10 items-center justify-center rounded-md border border-blue-200 text-blue-600 transition-colors hover:bg-blue-50 hover:text-blue-700"
+                                            title="View task"
+                                            aria-label="View task"
+                                        >
+                                            <span aria-hidden="true">&#128065;</span>
+                                        </Link>
+                                        <button
+                                            type="button"
+                                            class="inline-flex h-10 w-10 items-center justify-center rounded-md border border-red-200 text-red-600 transition-colors hover:bg-red-50 hover:text-red-700"
+                                            title="Delete task"
+                                            aria-label="Delete task"
+                                            @click="deleteTask(task)"
+                                        >
+                                            <span aria-hidden="true">&#128465;</span>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                             <tr v-if="filteredTasks.length === 0">
@@ -165,7 +189,7 @@
 
 <script>
 import { computed, ref, watch } from "vue";
-import { router } from "@inertiajs/vue3";
+import { Link, router } from "@inertiajs/vue3";
 import Swal from "sweetalert2";
 import SideBar from "../SideBar.vue";
 import TextInput from "@/Components/TextInput.vue";
@@ -177,6 +201,7 @@ export default {
         SideBar,
         TextInput,
         InputLabel,
+        Link,
     },
     props: {
         employees: {
@@ -397,6 +422,42 @@ export default {
             });
         };
 
+        const deleteTask = async (task) => {
+            const confirmation = await Swal.fire({
+                title: "Delete task?",
+                text: `Delete "${task.title}"? This action cannot be undone.`,
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, delete",
+                cancelButtonText: "Cancel",
+                reverseButtons: true,
+            });
+
+            if (!confirmation.isConfirmed) {
+                return;
+            }
+
+            router.delete(`/admin/tasks/${task.id}`, {
+                preserveScroll: true,
+                onSuccess: () => {
+                    Swal.fire({
+                        title: "Task deleted",
+                        text: "The task has been deleted.",
+                        icon: "success",
+                        confirmButtonText: "OK",
+                    });
+                },
+                onError: () => {
+                    Swal.fire({
+                        title: "Unable to delete task",
+                        text: "Please try again.",
+                        icon: "error",
+                        confirmButtonText: "OK",
+                    });
+                },
+            });
+        };
+
         return {
             router,
             taskSearch,
@@ -411,6 +472,7 @@ export default {
             isSelectionUnchanged,
             saveAssignees,
             removeAssignee,
+            deleteTask,
         };
     },
 };

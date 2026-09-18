@@ -26,6 +26,7 @@ class User extends Authenticatable
         'email',
         'password',
         'department',
+        'is_active',
         'role_id',
         'fcm_token',
     ];
@@ -49,6 +50,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'is_active' => 'boolean',
             'password' => 'hashed',
         ];
     }
