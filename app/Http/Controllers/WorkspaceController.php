@@ -40,8 +40,14 @@ class WorkspaceController extends Controller
 
         $workspace = auth()->user()->workspaces()->create([
             'name' => $validated['name'],
-            'slug' => Str::slug($validated['name']),
+            'slug' => Str::slug($validated['name']).'-'.Str::lower(Str::random(8)),
+            'public_id' => (string) Str::uuid(),
         ]);
+
+        if (auth()->user()->workspace_id === null) {
+            auth()->user()->workspace()->associate($workspace);
+            auth()->user()->save();
+        }
 
         return redirect()->route('workspaces.show', $workspace)->with('success', 'Workspace created successfully!');
     }

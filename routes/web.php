@@ -10,6 +10,8 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Api\FCMTokenController;
 use App\Http\Controllers\WorkspaceController;
 use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\OrganizationContactController;
+use App\Http\Controllers\Admin\ContactMessageController;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Artisan;
@@ -18,6 +20,10 @@ use Inertia\Inertia;
 
 // Public Routes
 Route::get('/', [HomeController::class,'index'])->middleware('guest')->name('home');
+Route::get('/organizations/contact', [OrganizationContactController::class, 'create'])->name('organizations.contact');
+Route::post('/organizations/contact', [OrganizationContactController::class, 'store'])
+    ->middleware('throttle:5,1')
+    ->name('organizations.contact.store');
 
 Route::prefix('/api/v1')->middleware('auth')->group(function () {
     Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('api.notifications.unread-count');
@@ -51,9 +57,11 @@ Route::get('/ops/start-reverb', function (Request $request) {
 
 
 // Admin Routes (Protected)
-Route::prefix('/admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'role:admin'])->prefix('/admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class,'index'])->name('dashboard');
     Route::get('/notifications', [AdminDashboardController::class,'notifications'])->name('notifications');
+    Route::get('/contact-messages', [ContactMessageController::class, 'index'])->name('contact-messages.index');
+    Route::patch('/contact-messages/{contactMessage}/read', [ContactMessageController::class, 'markAsRead'])->name('contact-messages.read');
     Route::patch('/tasks/{task}/assignees', [TaskController::class, 'updateAssignees'])->name('tasks.assignees.update');
     Route::delete('/tasks/{task}/assignees/{user}', [TaskController::class, 'removeAssignee'])->name('tasks.assignees.remove');
     Route::post('/tasks/{task}/comments', [TaskController::class, 'storeComment'])->name('tasks.comments.store');

@@ -10,6 +10,7 @@ use App\Models\Task;
 use App\Models\TaskComment;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class TaskController extends Controller
@@ -19,8 +20,8 @@ class TaskController extends Controller
      */
     public function index()
     {
-        $tasks = Task::with('creator', 'assignedEmployees')->paginate(15);
-        $employees = User::paginate(15);
+        $tasks = $this->workspaceTasks()->with('creator', 'assignedEmployees')->paginate(15);
+        $employees = User::where('workspace_id', auth()->user()->workspace_id)->paginate(15);
 
         return Inertia::render('Admin/Task/Index', [
             'tasks' => $tasks,
@@ -33,7 +34,7 @@ class TaskController extends Controller
      */
     public function create()
     {
-        $employees = User::all();
+        $employees = User::where('workspace_id', auth()->user()->workspace_id)->get();
 
         return Inertia::render('Admin/Task/Create', [
             'employees' => $employees,
@@ -53,7 +54,7 @@ class TaskController extends Controller
             'priority' => 'nullable|string|in:low,medium,high,urgent',
             'progress' => 'nullable|integer|min:0|max:100',
             'assignedTo' => 'nullable|array',
-            'assignedTo.*' => 'nullable|integer|exists:users,id',
+            'assignedTo.*' => ['nullable', 'integer', Rule::exists('users', 'id')->where('workspace_id', auth()->user()->workspace_id)],
 
             // 'assignedTo.*' => 'integer|exists:users,id',
         ]);
@@ -99,6 +100,7 @@ class TaskController extends Controller
      */
     public function show(Task $task)
     {
+        $this->ensureCurrentWorkspace($task);
         $task->load([
             'creator:id,firstname,surname,email',
             'assignedEmployees:id,firstname,surname,email',
@@ -118,6 +120,7 @@ class TaskController extends Controller
      */
     public function storeComment(Request $request, Task $task)
     {
+        $this->ensureCurrentWorkspace($task);
         $validated = $request->validate([
             'body' => 'required|string|max:2000',
         ]);
@@ -136,8 +139,9 @@ class TaskController extends Controller
      */
     public function edit(Task $task)
     {
+        $this->ensureCurrentWorkspace($task);
         $task->load('assignedEmployees');
-        $employees = User::all();
+        $employees = User::where('workspace_id', auth()->user()->workspace_id)->get();
 
         return Inertia::render('Admin/Task/Index', [
             'task' => $task,
@@ -150,6 +154,7 @@ class TaskController extends Controller
      */
     public function update(Request $request, Task $task)
     {
+        $this->ensureCurrentWorkspace($task);
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -158,7 +163,7 @@ class TaskController extends Controller
             'priority' => 'nullable|string|in:low,medium,high,urgent',
             'progress' => 'nullable|integer|min:0|max:100',
             'assignedTo' => 'nullable|array',
-            'assignedTo.*' => 'integer|exists:users,id',
+            'assignedTo.*' => ['integer', Rule::exists('users', 'id')->where('workspace_id', auth()->user()->workspace_id)],
         ]);
 
         $task->update([
@@ -208,9 +213,10 @@ class TaskController extends Controller
      */
     public function updateAssignees(Request $request, Task $task)
     {
+        $this->ensureCurrentWorkspace($task);
         $validated = $request->validate([
             'assignedTo' => 'nullable|array',
-            'assignedTo.*' => 'integer|exists:users,id',
+            'assignedTo.*' => ['integer', Rule::exists('users', 'id')->where('workspace_id', auth()->user()->workspace_id)],
         ]);
 
         $assigneeIds = $validated['assignedTo'] ?? [];
@@ -242,6 +248,8 @@ class TaskController extends Controller
      */
     public function removeAssignee(Task $task, User $user)
     {
+        $this->ensureCurrentWorkspace($task);
+        abort_unless($user->workspace_id === auth()->user()->workspace_id, 404);
         $task->assignedEmployees()->detach($user->id);
 
         return redirect()->back()->with('success', 'User removed from task successfully!');
@@ -252,8 +260,24 @@ class TaskController extends Controller
      */
     public function destroy(Task $task)
     {
+        $this->ensureCurrentWorkspace($task);
         $task->delete();
 
         return redirect()->back()->with('success', 'Task deleted successfully!');
+    }
+
+    private function workspaceTasks()
+    {
+        return Task::whereHas('creator', function ($query) {
+            $query->where('workspace_id', auth()->user()->workspace_id);
+        });
+    }
+
+    private function ensureCurrentWorkspace(Task $task): void
+    {
+        abort_unless(
+            $task->creator()->where('workspace_id', auth()->user()->workspace_id)->exists(),
+            404
+        );
     }
 }

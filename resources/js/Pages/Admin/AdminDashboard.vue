@@ -100,6 +100,26 @@
                 </div>
             </div>
 
+            <section v-if="workspace" class="mb-8 rounded-lg border border-blue-200 bg-blue-50 p-6 dark:border-blue-800 dark:bg-blue-900/20">
+                <div class="flex flex-wrap items-center justify-between gap-5">
+                    <div>
+                        <p class="text-sm font-medium text-blue-700 dark:text-blue-300">{{ workspace.name }}</p>
+                        <h2 class="mt-1 text-lg font-semibold text-gray-900 dark:text-white">Organisation ID</h2>
+                        <code class="mt-2 inline-block rounded bg-white px-3 py-2 text-sm text-gray-800 dark:bg-gray-800 dark:text-gray-100">{{ workspace.public_id }}</code>
+                        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                            Share this ID with employees so they can register, or with guests who want to contact your organisation.
+                        </p>
+                    </div>
+                    <button
+                        type="button"
+                        class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                        @click="$router.push('/admin/contact-messages')"
+                    >
+                        Contact messages ({{ unreadContactMessages }})
+                    </button>
+                </div>
+            </section>
+
             <!-- Charts and Recent Activity -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
                 <!-- Task Status Chart -->
@@ -422,6 +442,8 @@ export default {
 
         return {
             metrics,
+            workspace: page.props.workspace,
+            unreadContactMessages: page.props.unreadContactMessages || 0,
             taskStatuses,
             recentTasks,
             recentEmployees,

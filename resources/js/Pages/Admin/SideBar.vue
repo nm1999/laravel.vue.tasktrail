@@ -132,6 +132,14 @@
                 </div>
             </div>
 
+            <Link
+                href="/admin/contact-messages"
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                :class="route().current('*contact-messages*') ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-medium' : ''"
+            >
+                <span class="text-sm font-medium">Organisation messages</span>
+            </Link>
+
             <!-- Notifications -->
             <Link
                 href="/admin/notifications"

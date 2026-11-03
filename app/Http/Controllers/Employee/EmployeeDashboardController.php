@@ -26,7 +26,9 @@ class EmployeeDashboardController extends Controller
 
         // Get task statistics for the employee
         $stats = [
-            'tasks'=> Task::orderBy('id','desc')->get(),
+            'tasks'=> Task::whereHas('creator', function ($query) use ($user) {
+                $query->where('workspace_id', $user->workspace_id);
+            })->orderBy('id','desc')->get(),
             'assigned_tasks' => $assignedTasks->count(),
             'completed_tasks' => $user->assignedTasks()->where('status', 'completed')->count(),
             'in_progress_tasks' => $user->assignedTasks()->where('status', 'in_progress')->count(),
@@ -74,6 +76,7 @@ class EmployeeDashboardController extends Controller
     {
         $user = Auth::user();
 
+        abort_unless($task->creator()->where('workspace_id', $user->workspace_id)->exists(), 404);
         abort_unless(
             $task->created_by === $user->id || $task->assignedEmployees()->where('user_id', $user->id)->exists(),
             403
@@ -97,6 +100,7 @@ class EmployeeDashboardController extends Controller
     {
         $user = Auth::user();
 
+        abort_unless($task->creator()->where('workspace_id', $user->workspace_id)->exists(), 404);
         abort_unless(
             $task->created_by === $user->id || $task->assignedEmployees()->where('user_id', $user->id)->exists(),
             403
@@ -139,6 +143,7 @@ class EmployeeDashboardController extends Controller
     {
         $user = Auth::user();
 
+        abort_unless($task->creator()->where('workspace_id', $user->workspace_id)->exists(), 404);
         abort_unless(
             $task->created_by === $user->id || $task->assignedEmployees()->where('user_id', $user->id)->exists(),
             403

@@ -14,6 +14,7 @@ class ActivityController extends Controller
      */
     public function index(Task $task)
     {
+        $this->ensureCurrentWorkspace($task);
         $activities = $task->activities()
             ->with('user')
             ->orderBy('created_at', 'desc')
@@ -30,6 +31,7 @@ class ActivityController extends Controller
      */
     public function store(Request $request, Task $task)
     {
+        $this->ensureCurrentWorkspace($task);
         $validated = $request->validate([
             'action' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -68,6 +70,7 @@ class ActivityController extends Controller
      */
     public function taskLog(Task $task)
     {
+        $this->ensureCurrentWorkspace($task);
         $activities = $task->activities()
             ->with('user')
             ->orderBy('created_at', 'desc')
@@ -77,5 +80,13 @@ class ActivityController extends Controller
             'task' => $task,
             'activities' => $activities,
         ]);
+    }
+
+    private function ensureCurrentWorkspace(Task $task): void
+    {
+        abort_unless(
+            $task->creator()->where('workspace_id', auth()->user()->workspace_id)->exists(),
+            404
+        );
     }
 }

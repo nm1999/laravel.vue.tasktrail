@@ -28,6 +28,7 @@ class User extends Authenticatable
         'department',
         'is_active',
         'role_id',
+        'workspace_id',
         'fcm_token',
     ];
 
@@ -109,6 +110,11 @@ class User extends Authenticatable
     public function workspaces(): HasMany
     {
         return $this->hasMany(Workspace::class);
+    }
+
+    public function workspace(): BelongsTo
+    {
+        return $this->belongsTo(Workspace::class);
     }
 
     /**

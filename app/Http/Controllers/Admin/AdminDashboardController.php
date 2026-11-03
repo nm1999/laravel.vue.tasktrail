@@ -13,24 +13,30 @@ class AdminDashboardController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $employee = User::all();
-        $recentTasks = Task::with('assignedEmployees:id,firstname,surname')
+        $workspaceId = $user->workspace_id;
+        $employee = User::where('workspace_id', $workspaceId)->get();
+        $workspaceTasks = Task::whereHas('creator', function ($query) use ($workspaceId) {
+            $query->where('workspace_id', $workspaceId);
+        });
+        $recentTasks = (clone $workspaceTasks)->with('assignedEmployees:id,firstname,surname')
             ->latest()
             ->take(8)
             ->get(['id', 'title', 'status', 'deadline']);
 
         // Get dashboard statistics
         $stats = [
-            'total_tasks' => Task::count(),
-            'active_tasks' => Task::where('status', 'in_progress')->count(),
-            'total_employees' => User::whereHas('roles', function($query) {
+            'total_tasks' => (clone $workspaceTasks)->count(),
+            'active_tasks' => (clone $workspaceTasks)->where('status', 'in_progress')->count(),
+            'total_employees' => User::where('workspace_id', $workspaceId)->whereHas('roles', function($query) {
                 $query->where('role', 'employee');
             })->count(),
-            'completed_tasks' => Task::where('status', 'completed')->count(),
+            'completed_tasks' => (clone $workspaceTasks)->where('status', 'completed')->count(),
         ];
 
         return Inertia::render('Admin/AdminDashboard', [
             'user' => $user,
+            'workspace' => $user->workspace,
+            'unreadContactMessages' => $user->workspace?->contactMessages()->whereNull('read_at')->count() ?? 0,
             'stats' => $stats,
             'employee'=> $employee,
             'recentTasks' => $recentTasks,
