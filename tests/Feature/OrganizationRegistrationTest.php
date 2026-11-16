@@ -34,6 +34,37 @@ class OrganizationRegistrationTest extends TestCase
         $this->assertTrue(Str::isUuid($owner->workspace->public_id));
     }
 
+    public function test_multiple_organizations_can_register_independently(): void
+    {
+        $this->post('/register', [
+            'account_type' => 'organization',
+            'organization_name' => 'Northwind Labs',
+            'firstname' => 'Avery',
+            'surname' => 'Stone',
+            'email' => 'avery@example.test',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+        ])->assertRedirect('/admin/dashboard');
+
+        $this->post('/logout');
+
+        $this->post('/register', [
+            'account_type' => 'organization',
+            'organization_name' => 'Contoso',
+            'firstname' => 'Jordan',
+            'surname' => 'Lee',
+            'email' => 'jordan@example.test',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+        ])->assertRedirect('/admin/dashboard');
+
+        $this->assertDatabaseCount('workspaces', 2);
+        $this->assertNotSame(
+            User::where('email', 'avery@example.test')->firstOrFail()->workspace->public_id,
+            User::where('email', 'jordan@example.test')->firstOrFail()->workspace->public_id,
+        );
+    }
+
     public function test_an_employee_can_register_under_an_organization_id(): void
     {
         $workspace = $this->createOrganization('Northwind Labs');
@@ -59,6 +90,8 @@ class OrganizationRegistrationTest extends TestCase
     {
         $workspace = $this->createOrganization('Northwind Labs');
         $otherWorkspace = $this->createOrganization('Contoso');
+
+        $this->get('/organizations/contact')->assertOk();
 
         $this->post('/organizations/contact', [
             'organization_id' => $workspace->public_id,
