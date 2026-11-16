@@ -15,7 +15,7 @@
                     Create your account
                 </h1>
                 <p class="mt-3 text-sm text-gray-600">
-                    Join TaskTrail and start managing your work.
+                    Register your organisation or join one using its ID.
                 </p>
             </div>
 
@@ -34,6 +34,43 @@
             </div>
 
             <form class="space-y-5" autocomplete="off" @submit.prevent="signUp">
+                <fieldset class="space-y-3">
+                    <legend class="mb-2 block text-sm font-medium text-gray-700">I want to</legend>
+                    <label class="flex items-center gap-3 rounded-xl border border-gray-200 p-3 text-sm">
+                        <input v-model="form.account_type" type="radio" value="organization" />
+                        Register an organisation
+                    </label>
+                    <label class="flex items-center gap-3 rounded-xl border border-gray-200 p-3 text-sm">
+                        <input v-model="form.account_type" type="radio" value="employee" />
+                        Join an organisation as an employee
+                    </label>
+                </fieldset>
+
+                <div v-if="form.account_type === 'organization'">
+                    <label class="mb-2 block text-sm font-medium text-gray-700" for="organization_name">Organisation name</label>
+                    <input
+                        id="organization_name"
+                        v-model="form.organization_name"
+                        type="text"
+                        maxlength="255"
+                        placeholder="e.g. Acme Ltd"
+                        class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                        required
+                    />
+                </div>
+
+                <div v-else>
+                    <label class="mb-2 block text-sm font-medium text-gray-700" for="organization_id">Organisation ID</label>
+                    <input
+                        id="organization_id"
+                        v-model="form.organization_id"
+                        type="text"
+                        placeholder="Enter the ID provided by your organisation"
+                        class="w-full rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                        required
+                    />
+                </div>
+
                 <!-- First name + Surname -->
                 <div class="grid grid-cols-2 gap-4">
                     <div>
@@ -167,6 +204,9 @@ import { ref, reactive } from 'vue';
 import { router , Link} from '@inertiajs/vue3';
 
 const form = reactive({
+    account_type: 'organization',
+    organization_name: '',
+    organization_id: '',
     firstname: '',
     surname: '',
     email: '',

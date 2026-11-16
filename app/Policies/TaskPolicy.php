@@ -21,7 +21,8 @@ class TaskPolicy
     public function view(User $user, Task $task): bool
     {
         // Users can view tasks they created or are assigned to
-        return $user->id === $task->created_by || $task->assignedEmployees()->where('user_id', $user->id)->exists();
+        return $user->workspace_id === $task->creator?->workspace_id
+            && ($user->id === $task->created_by || $task->assignedEmployees()->where('user_id', $user->id)->exists());
     }
 
     /**
@@ -39,7 +40,9 @@ class TaskPolicy
     public function update(User $user, Task $task): bool
     {
         // Only the creator (admin) can update tasks
-        return $user->id === $task->created_by && $user->roles()->where('role', 'admin')->exists();
+        return $user->workspace_id === $task->creator?->workspace_id
+            && $user->id === $task->created_by
+            && $user->roles()->where('role', 'admin')->exists();
     }
 
     /**
@@ -48,7 +51,9 @@ class TaskPolicy
     public function delete(User $user, Task $task): bool
     {
         // Only the creator (admin) can delete tasks
-        return $user->id === $task->created_by && $user->roles()->where('role', 'admin')->exists();
+        return $user->workspace_id === $task->creator?->workspace_id
+            && $user->id === $task->created_by
+            && $user->roles()->where('role', 'admin')->exists();
     }
 
     /**

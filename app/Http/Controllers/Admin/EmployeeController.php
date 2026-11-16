@@ -15,7 +15,8 @@ class EmployeeController extends Controller
      */
     public function index()
     {
-        $employees = User::with('roles')
+        $employees = User::where('workspace_id', auth()->user()->workspace_id)
+            ->with('roles')
             ->orderBy('firstname')
             ->orderBy('surname')
             ->paginate(15)
@@ -66,6 +67,7 @@ class EmployeeController extends Controller
             'email' => $validated['email'],
             'department' => $validated['department'] ?? null,
             'password' => Hash::make($validated['password']),
+            'workspace_id' => auth()->user()->workspace_id,
         ]);
 
         $this->syncRole($employee, $validated['role']);
@@ -78,6 +80,7 @@ class EmployeeController extends Controller
      */
     public function show(User $employee)
     {
+        $this->ensureCurrentWorkspace($employee);
         return;
     }
 
@@ -86,6 +89,7 @@ class EmployeeController extends Controller
      */
     public function edit(User $employee)
     {
+        $this->ensureCurrentWorkspace($employee);
         // return Inertia::render('Admin/Employees/Edit', [
         //     'employee' => $employee,
         // ]);
@@ -96,6 +100,7 @@ class EmployeeController extends Controller
      */
     public function update(Request $request, User $employee)
     {
+        $this->ensureCurrentWorkspace($employee);
         $validated = $request->validate([
             'firstname' => 'required|string|max:255',
             'surname' => 'required|string|max:255',
@@ -130,6 +135,7 @@ class EmployeeController extends Controller
      */
     public function updateRole(Request $request, User $employee)
     {
+        $this->ensureCurrentWorkspace($employee);
         $validated = $request->validate([
             'role' => 'required|in:admin,employee',
         ]);
@@ -144,6 +150,7 @@ class EmployeeController extends Controller
      */
     public function updateStatus(Request $request, User $employee)
     {
+        $this->ensureCurrentWorkspace($employee);
         $validated = $request->validate([
             'is_active' => 'required|boolean',
         ]);
@@ -160,6 +167,7 @@ class EmployeeController extends Controller
      */
     public function destroy(User $employee)
     {
+        $this->ensureCurrentWorkspace($employee);
         $employee->delete();
 
         return redirect()->back()->with('success', 'Employee deleted successfully!');
@@ -179,5 +187,10 @@ class EmployeeController extends Controller
         $employee->roles()->create([
             'role' => $role,
         ]);
+    }
+
+    private function ensureCurrentWorkspace(User $employee): void
+    {
+        abort_unless($employee->workspace_id === auth()->user()->workspace_id, 404);
     }
 }

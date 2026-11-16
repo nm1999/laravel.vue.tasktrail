@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -28,6 +29,7 @@ class User extends Authenticatable
         'department',
         'is_active',
         'role_id',
+        'workspace_id',
         'fcm_token',
     ];
 
@@ -109,6 +111,11 @@ class User extends Authenticatable
     public function workspaces(): HasMany
     {
         return $this->hasMany(Workspace::class);
+    }
+
+    public function workspace(): BelongsTo
+    {
+        return $this->belongsTo(Workspace::class);
     }
 
     /**

@@ -99,6 +99,15 @@
                         Create an account
                 </Link>
                 </p>
+                <p class="mt-3">
+                    Need to contact an organisation?
+                    <Link
+                        href="/organizations/contact"
+                        class="font-medium text-blue-600 hover:text-blue-800"
+                    >
+                        Send them a message
+                    </Link>
+                </p>
             </div>
         </div>
     </div>
