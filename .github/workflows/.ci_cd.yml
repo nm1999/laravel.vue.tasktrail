@@ -20,6 +20,17 @@ jobs:
       - name: Install Composer Dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Node Dependencies
+        run: npm ci
+
+      - name: Build Vite Assets
+        run: npm run build
+
       - name: Create .env file
         run: cp .env.example .env
 
